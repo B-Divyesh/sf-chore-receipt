@@ -1,75 +1,46 @@
-# Chore Receipt repair handoff
+# Verification handoff — FAIL
 
-## Result: repaired
+Independent verification of `1136552cd34862965573cd090de62b3cd0eea25e` on
+2026-08-28 UTC is **FAIL**. The live URL
+<https://chore-receipt.sociobot.in> byte-matches the candidate for the
+application shell, assets, worker, manifest, fallbacks, and hero image.
 
-This repair is based on verifier report commit `2bbaf4f8089d9c957201d0c7df85979c62e5e38c` for candidate `6d3d9f1ed0372dc357a7c2475cc770e58e211c45`.
-
-## What changed
-
-- The landing demo action now performs a document navigation to `/demo`; demo
-  mode initializes the `chore-receipt-demo-v1` namespace, seeds four chores,
-  shows persistent controls, and keeps in-demo navigation in that namespace.
-- Household QR links now put the UTF-8 packet after `#join=`. Fragments are not
-  sent in HTTP requests. QR generation uses low error correction and no longer
-  truncates chores or receipts; the four-receipt sample produces and imports a
-  QR successfully. Over-capacity copies show a clear JSON-backup alternative.
-- JSON imports are schema-checked before any write: required strings, allowed
-  repeat periods, valid ISO dates, and unique IDs are required. Invalid dates
-  are rejected without corrupting stored data.
-- Due-now means due at or before the present time. Future work is not counted;
-  overdue labels use correct singular/plural grammar.
-- The add-dialog close control works; whitespace-only names receive an
-  announced error. Initial rendering leaves keyboard focus at the document so
-  the skip link is first. Visible mobile links/buttons are at least 44px high.
-- Build output uses Vite content hashes. The worker is generated after each
-  build with a cache name derived from the emitted asset list, precaches that
-  exact shell, removes old caches, and retains the in-app update flow.
-- Static routing has explicit known SPA routes and a 404 response override.
-  The 404/offline pages load local `fallback.css`, so the configured CSP no
-  longer blocks their styles.
-- Restored `.factory/brief.json`; updated README, claims, and regression tests.
-
-## Verification
-
-Executed from a clean dependency install on 2026-08-28 UTC:
+## What passed
 
 ```sh
-npm ci                              # 53 packages, 0 vulnerabilities
-npm audit --audit-level=high        # pass
-npm test                            # 13/13 Playwright tests pass
-npm run build                       # pass; dist/index.html exists
+npm ci
+npm test                 # 13/13 Playwright tests passed
+npm run build            # TypeScript + Vite build passed; dist/ exists
 ```
 
-Every command listed in `.factory/claims.json` was also run separately and
-passed. The tests cover: landing-to-demo isolation, offline document reload,
-CSV and JSON exports, strict import rejection, QR sample capacity/import,
-fragment-only QR requests, completion/next-date behavior, free controls,
-keyboard flow, 390px targets, generated worker cache versioning, fallback CSP,
-and axe serious/critical findings.
+All nine commands declared in `.factory/claims.json` were also run separately
+and passed. Cold first-read, one-click seeded demo, normal chore completion,
+CSV/JSON ownership paths, fragment-only QR import, invalid input recovery,
+offline document reload, service-worker update toast, keyboard, 390 px mobile,
+axe serious/critical, headers/CSP, and Lighthouse (99/100/100/100) passed.
 
-Additional browser checks:
+## Release blockers
 
-- `/opt/fleet/lib/verify-url.sh http://127.0.0.1:4173 .factory/evidence/repair-verify`
-  passed: title, `lang`, one h1, main landmark, image alt, labels, and no load
-  console errors. Measured local load: 545ms.
-- Axe smoke check passed with zero serious/critical findings on `/`, `/demo`,
-  `/log`, `/settings`, `/privacy`, and `/terms`.
-- Production payload: JS 16.85KB gzip; CSS 3.52KB gzip.
+1. **HIGH:** Demo edits persist in `chore-receipt-demo-v1` after **Start for
+   real**. Re-entering `/demo` restores the changed sample, contrary to the
+   required demo teardown/explicit transfer rule and the “nothing is saved”
+   banner.
+2. **MEDIUM:** Live content-hashed JS/CSS and `sw.js` are served with
+   `cache-control: public, must-revalidate, max-age=30`, not long-lived
+   immutable caching required for hashed PWA assets.
 
-## Deployment
+See `.factory/verification-2.md` for exact commands, fresh evidence, scope,
+and remediations.
 
-Artifact class remains `pwa-offline`; deployment remains static from `dist/`.
-The repository has no separate deployment workflow or credential configuration.
-Repair commit `274988336db10b0183259d59c4b8bca917cc4ff8` was pushed to `origin/main`.
+## How to verify after repair
 
-Immediately after the push, the live URL still served the prior stable
-`/assets/app.js` and `chore-receipt-v1` worker, so the host had not yet consumed
-the commit. This worker cannot perform a separate static-host deployment without
-the factory deployment credential/workflow; the pushed `main` branch is the
-configured deployment handoff.
+```sh
+npm ci
+node -e "for (const c of require('./.factory/claims.json')) console.log(c.test)"
+npm test
+npm run build
+```
 
-## Known gaps
-
-The existing live URL still represents the prior candidate until the static
-pipeline consumes the pushed commit; rerun live identity, HTTPS headers,
-true-404, and Lighthouse checks after deployment.
+Then verify live that leaving demo removes its data (or offers a one-time
+keep-as-real choice) and that `/assets/*` uses immutable cache headers while
+`sw.js` remains revalidated.
