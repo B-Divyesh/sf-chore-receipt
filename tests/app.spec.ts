@@ -211,6 +211,8 @@ test('@claim:json-backup JSON import restores household, chores, and receipts in
   const targetPage = await freshPage(target, '/settings');
   expect(await databaseValue(targetPage, 'chore-receipt-real-v1')).toBeUndefined();
   await expect(targetPage.getByRole('button', { name: 'Export JSON backup' })).toBeVisible();
+  await expect(targetPage.locator('#import-file')).toBeHidden();
+  await expect(targetPage.locator('label[for="import-file"]')).toBeVisible();
   await targetPage.getByLabel('Choose JSON file').setInputFiles({ name: 'backup.json', mimeType: 'application/json', buffer });
   await expect(targetPage.getByText('Backup imported. Chore changes and receipt history were kept.')).toBeVisible();
   await targetPage.reload();

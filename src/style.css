@@ -23,6 +23,9 @@
 * {
   box-sizing: border-box;
 }
+[hidden] {
+  display: none !important;
+}
 html {
   background: var(--paper);
   scroll-behavior: smooth;
