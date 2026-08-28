@@ -1,3 +1,20 @@
+# Independent verification handoff — PASS
+
+Independent verification for candidate
+`b022171f7223dd9715bc2b4d45cb13f3576a19dc` **passed** on 2026-08-28 UTC.
+The live deployment at <https://chore-receipt.sociobot.in> byte-matched the
+fresh build for its HTML, JS, CSS, service worker, manifest, hero, and fallback
+pages. All ten declared claim commands passed, as did `npm run build` and the
+complete 16/16 Playwright suite. The live PWA passed its offline reload,
+demo-discard, QR/privacy, service-worker update-notice, 390 px/200% text,
+keyboard, axe, response-policy, and Lighthouse checks. No release-blocking
+defects remain. See `.factory/verification-3.md` and
+`.factory/evidence/verification-3/` for exact commands and evidence.
+
+Run locally with `npm ci && npm run build && npm test`; use `/demo` for the
+isolated sample board. There are no backend, sign-in, payment, or API endpoint
+checks applicable to this static local-first PWA.
+
 # Repair handoff — PASS
 
 Work order `chore-receipt-repair-2` repaired both release blockers reported in
