@@ -1,46 +1,61 @@
-# Chore Receipt handoff
+# Chore Receipt independent-verification handoff
 
-## Shipped
+## Result: FAIL — do not release
 
-- Offline-first Vite PWA using IndexedDB with separate real and demo databases.
-- Shared, unassigned chore board; one-tap dated receipts; repeat-after dates;
-  neutral receipt history; undo for the newest receipt.
-- Isolated `/demo` with realistic sample chores, reset, and Start for real.
-- JSON backup import/export, CSV receipt export, and opt-in QR household copies.
-  Imported copies use last-write-wins by `updatedAt`, while receipt history stays visible.
-- Paper-cut diorama visual system, including original generated kitchen art.
-- Real routes for log, household, privacy, terms, and a styled 404.
+- Candidate: `6d3d9f1ed0372dc357a7c2475cc770e58e211c45`
+- Live URL: <https://chore-receipt.sociobot.in>
+- Verified: 2026-08-28 UTC
+- Full report: [verification.md](verification.md)
 
-## Run and verify
+The live deployment byte-matches the candidate's inspected application
+artifacts. This is a product failure, not a deployment-only failure.
+
+## Release blockers
+
+1. The first-screen **Try it with sample data** action opens an empty board,
+   has no demo banner, and uses the real IndexedDB namespace. Only a direct
+   `/demo` document load is seeded and isolated.
+2. QR joining sends encoded household data to the hosting origin in the
+   `?join=` document request despite the “Nothing is sent to us” claim.
+3. Household QR generation fails at three completed chores; the shipped sample
+   has four and cannot generate a QR.
+4. A superficially structured backup with invalid dates is accepted, persists,
+   and breaks the receipt log with no effective recovery.
+5. Stable cached app asset names can remain stale when an app build changes
+   without a byte change to `sw.js`; the update test stayed on version 1.
+6. Public capability/privacy statements are missing from `claims.json`, and
+   the offline claim test does not perform an offline reload.
+
+Additional defects: broken modal close button, silent whitespace validation,
+incorrect “due now” boundary/grammar, undersized mobile touch targets, initial
+focus bypassing header/skip navigation, HTTP 200 for unknown routes, and CSP
+errors on the standalone 404/offline pages.
+
+## Verification summary
 
 ```sh
-npm install
+npm ci
 npm test
 npm run build
+npm audit --audit-level=high
 ```
 
-`npm test` passed on 2026-08-28: 7 Playwright checks passed. The checks cover
-the required claims, keyboard add flow, 390px mobile landing, and no serious or
-critical axe findings. `npm run build` passed and writes `dist/index.html`.
+- Claim commands: 4/4 passed individually.
+- Full suite: 7/7 passed.
+- Type/build: passed; `dist/index.html` produced.
+- Dependency audit: 0 vulnerabilities.
+- No lint script exists.
+- Playwright axe: zero serious/critical findings on all application routes.
+- Live offline reload: passed in three fresh contexts.
+- Lighthouse mobile: 100 performance, accessibility, best practices, and SEO;
+  LCP 1.7 s, TBT 50 ms, CLS 0.014.
+- Payload: 16,327-byte gzip JS, 3,483-byte gzip CSS, 93,114-byte hero WebP.
+- Normal flows had no console errors or third-party runtime requests.
 
-Build output: JavaScript 16.56 KB gzip; CSS 3.48 KB gzip; hero WebP 91 KB.
-Those are below the 200 KB JS, 50 KB CSS, and 300 KB hero budgets.
+## Reverification focus
 
-The Lighthouse CLI could not run in this container because its Chrome tab
-crashed at launch. The equivalent automated accessibility check passed with
-zero serious/critical axe findings; the performance payload figures are above.
-
-## Privacy and offline
-
-No runtime third-party scripts, fonts, analytics, or network calls are used.
-The `@claim:local-only` check intercepts demo requests. The service worker
-pre-caches the stable application shell; `@claim:offline-reload` takes the
-demo offline and verifies a receipt can still be created.
-
-## Known gaps / next steps
-
-- Household QR copies are opt-in snapshots, not live background sync. This is
-  intentional for a static local-first v1; a future peer-to-peer transport can
-  reuse the existing conflict-safe merge routine.
-- The browser owns local data. People should export JSON before clearing site
-  storage or replacing a device.
+Fix and add tests for the landing-to-demo transition/storage isolation, QR
+privacy and capacity, imported-data validation/recovery, and a two-version
+service-worker update. Then address the interaction/accessibility/routing
+findings and make every public claim appear exactly once in `claims.json` with
+an outcome-level demo test.

@@ -1,0 +1,19 @@
+{
+  "syntaxNote": "That file is not a Chore Receipt backup. Choose a JSON export.",
+  "poisonNote": "Backup imported. Newer records were kept.",
+  "afterClick": {
+    "url": "http://127.0.0.1:4173/log",
+    "h1": [
+      "Household and data"
+    ],
+    "errors": [
+      "Invalid time value"
+    ]
+  },
+  "afterReload": {
+    "h1": [
+      "Your chore record could not open"
+    ],
+    "text": "Your chore record could not open\n\nBrowser storage is unavailable. Enable site data, then reload.\n\nReload Chore Receipt"
+  }
+}

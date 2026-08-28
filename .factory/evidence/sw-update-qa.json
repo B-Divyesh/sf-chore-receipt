@@ -1,0 +1,21 @@
+{
+  "port": 45227,
+  "before": {
+    "version": 1,
+    "controller": "http://127.0.0.1:45227/sw.js",
+    "caches": null
+  },
+  "phase": 2,
+  "update": {
+    "installing": false,
+    "waiting": false,
+    "active": true,
+    "toast": false
+  },
+  "after": {
+    "version": 1,
+    "controller": "http://127.0.0.1:45227/sw.js",
+    "toast": false
+  },
+  "conclusion": "Server changed app.js from v1 to v2 while sw.js stayed byte-identical."
+}

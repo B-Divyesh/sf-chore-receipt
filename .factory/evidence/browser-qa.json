@@ -1,0 +1,695 @@
+{
+  "generatedAt": "2026-08-28T14:26:05.410Z",
+  "targets": {
+    "local": {
+      "base": "http://127.0.0.1:4173",
+      "checks": {
+        "firstRead": {
+          "title": "Chore Receipt — log shared chores",
+          "h1": [
+            "Record chores when they get done"
+          ],
+          "audience": [
+            "For roommates and families who share the work and need to know what is due next."
+          ],
+          "demoAction": 1
+        },
+        "oneClickDemo": {
+          "url": "http://127.0.0.1:4173/demo",
+          "banner": 0,
+          "chores": 0,
+          "bodyExcerpt": "OUR HOME\n\nShared chore board\n\nMark the outcome. The next due date follows completion.\n\nAdd a chore\nExport data\nReady for anyone\n0 due now\nNo chores yet\n\nYour shared chores will appear here. Add one to make its first receipt.\n\nAdd a chore\nRecent receipts\nView all\n\nA time-stamped receipt appears when someone marks a chore done.",
+          "indexedDB": [
+            "chore-receipt-real-v1"
+          ]
+        },
+        "directDemo": {
+          "title": "Demo — Chore Receipt",
+          "banner": "Demo — sample data, nothing is saved.\nReset demo\nStart for real",
+          "chores": 4,
+          "receipts": 4,
+          "household": "MAPLE STREET HOME",
+          "indexedDB": [
+            "chore-receipt-demo-v1",
+            "chore-receipt-real-v1"
+          ]
+        },
+        "completeUndo": {
+          "firstTitle": "Clean the bathroom",
+          "notice": "Receipt added for Clean the bathroom. Next due Sep 4. Undo",
+          "beforeReceipts": 4,
+          "afterReceipts": 4,
+          "afterUndoReceipts": 4
+        },
+        "csv": {
+          "filename": "chore-receipts.csv",
+          "lines": 5,
+          "first": "chore,completed_at,due_at",
+          "sample": "\"Water the plants\",2026-08-26T05:26:06.678Z,2026-08-31T05:26:06.678Z"
+        },
+        "qr": {
+          "image": 0,
+          "note": "The household QR could not be made. Export a JSON backup instead.",
+          "hrefLength": 0
+        },
+        "closeButton": {
+          "openAfterClick": true
+        },
+        "whitespaceInput": {
+          "dialogOpen": true,
+          "message": "",
+          "invalid": false
+        },
+        "persistence": {
+          "titleCount": 1,
+          "databaseNames": [
+            "chore-receipt-real-v1"
+          ]
+        },
+        "json": {
+          "filename": "chore-receipt-backup.json",
+          "household": "Our home",
+          "chores": 1,
+          "receipts": 0
+        },
+        "offlineReload": {
+          "error": "",
+          "h1": [],
+          "chores": 0,
+          "controlled": true
+        },
+        "mobile": {
+          "viewport": {
+            "innerWidth": 390,
+            "scrollWidth": 390
+          },
+          "smallTargets": [
+            {
+              "text": "▰ Chore Receipt",
+              "width": 138,
+              "height": 39
+            },
+            {
+              "text": "Receipt log",
+              "width": 73,
+              "height": 20
+            },
+            {
+              "text": "Privacy",
+              "width": 47,
+              "height": 20
+            },
+            {
+              "text": "Add your first chore →",
+              "width": 199,
+              "height": 24
+            },
+            {
+              "text": "Read the privacy details",
+              "width": 219,
+              "height": 19
+            },
+            {
+              "text": "Privacy",
+              "width": 45,
+              "height": 19
+            },
+            {
+              "text": "Terms",
+              "width": 37,
+              "height": 19
+            },
+            {
+              "text": "Built by Param Factory",
+              "width": 141,
+              "height": 19
+            }
+          ],
+          "reducedMotion": {
+            "media": true,
+            "htmlScroll": "auto",
+            "buttonTransition": "1e-05s"
+          }
+        },
+        "routes": {
+          "/": {
+            "status": 200,
+            "title": "Chore Receipt — log shared chores",
+            "lang": "en",
+            "h1": 1,
+            "main": 1,
+            "seriousCritical": [],
+            "allAxe": [],
+            "errors": []
+          },
+          "/demo": {
+            "status": 200,
+            "title": "Demo — Chore Receipt",
+            "lang": "en",
+            "h1": 1,
+            "main": 1,
+            "seriousCritical": [],
+            "allAxe": [],
+            "errors": []
+          },
+          "/log": {
+            "status": 200,
+            "title": "Receipt log — Chore Receipt",
+            "lang": "en",
+            "h1": 1,
+            "main": 1,
+            "seriousCritical": [],
+            "allAxe": [],
+            "errors": []
+          },
+          "/settings": {
+            "status": 200,
+            "title": "Household — Chore Receipt",
+            "lang": "en",
+            "h1": 1,
+            "main": 1,
+            "seriousCritical": [],
+            "allAxe": [],
+            "errors": []
+          },
+          "/privacy": {
+            "status": 200,
+            "title": "Privacy — Chore Receipt",
+            "lang": "en",
+            "h1": 1,
+            "main": 1,
+            "seriousCritical": [],
+            "allAxe": [],
+            "errors": []
+          },
+          "/terms": {
+            "status": 200,
+            "title": "Terms — Chore Receipt",
+            "lang": "en",
+            "h1": 1,
+            "main": 1,
+            "seriousCritical": [],
+            "allAxe": [],
+            "errors": []
+          },
+          "/not-a-page": {
+            "status": 200,
+            "title": "Chore Receipt — log shared chores",
+            "lang": "en",
+            "h1": 1,
+            "main": 1,
+            "seriousCritical": [],
+            "allAxe": [],
+            "errors": []
+          }
+        },
+        "keyboard": {
+          "focusTrail": [
+            {
+              "tag": "A",
+              "text": "Try it with sample data",
+              "outline": "rgb(199, 80, 56) solid 3px",
+              "rect": {
+                "x": 50,
+                "y": 516.84375,
+                "width": 243.671875,
+                "height": 46,
+                "top": 516.84375,
+                "right": 293.671875,
+                "bottom": 562.84375,
+                "left": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "text": "Add your first chore →",
+              "outline": "rgb(199, 80, 56) solid 3px",
+              "rect": {
+                "x": 50,
+                "y": 634.5625,
+                "width": 199.21875,
+                "height": 24,
+                "top": 634.5625,
+                "right": 249.21875,
+                "bottom": 658.5625,
+                "left": 50
+              }
+            },
+            {
+              "tag": "A",
+              "text": "Read the privacy details",
+              "outline": "rgb(199, 80, 56) solid 3px",
+              "rect": {
+                "x": 50,
+                "y": 1435.71875,
+                "width": 219.234375,
+                "height": 19,
+                "top": 1435.71875,
+                "right": 269.234375,
+                "bottom": 1454.71875,
+                "left": 50
+              }
+            },
+            {
+              "tag": "A",
+              "text": "Privacy",
+              "outline": "rgb(199, 80, 56) solid 3px",
+              "rect": {
+                "x": 929.5,
+                "y": 1600,
+                "width": 45.15625,
+                "height": 18.71875,
+                "top": 1600,
+                "right": 974.65625,
+                "bottom": 1618.71875,
+                "left": 929.5
+              }
+            },
+            {
+              "tag": "A",
+              "text": "Terms",
+              "outline": "rgb(199, 80, 56) solid 3px",
+              "rect": {
+                "x": 987.65625,
+                "y": 1600,
+                "width": 36.71875,
+                "height": 18.71875,
+                "top": 1600,
+                "right": 1024.375,
+                "bottom": 1618.71875,
+                "left": 987.65625
+              }
+            },
+            {
+              "tag": "A",
+              "text": "Built by Param Factory",
+              "outline": "rgb(199, 80, 56) solid 3px",
+              "rect": {
+                "x": 1037.375,
+                "y": 1600,
+                "width": 140.515625,
+                "height": 18.71875,
+                "top": 1600,
+                "right": 1177.890625,
+                "bottom": 1618.71875,
+                "left": 1037.375
+              }
+            },
+            {
+              "tag": "BODY",
+              "text": "Skip to content▰ Chore ReceiptReceipt logHouseholdPrivacyA h",
+              "outline": "rgb(36, 48, 43) none 0px",
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 1646.71875,
+                "top": 0,
+                "right": 1280,
+                "bottom": 1646.71875,
+                "left": 0
+              }
+            },
+            {
+              "tag": "A",
+              "text": "Skip to content",
+              "outline": "rgb(199, 80, 56) solid 3px",
+              "rect": {
+                "x": 12,
+                "y": 12,
+                "width": 151.515625,
+                "height": 44,
+                "top": 12,
+                "right": 163.515625,
+                "bottom": 56,
+                "left": 12
+              }
+            }
+          ]
+        }
+      },
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requests": [
+        {
+          "url": "http://127.0.0.1:4173/",
+          "origin": "http://127.0.0.1:4173"
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/app.js",
+          "origin": "http://127.0.0.1:4173"
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/app.css",
+          "origin": "http://127.0.0.1:4173"
+        },
+        {
+          "url": "http://127.0.0.1:4173/kitchen-diorama.webp",
+          "origin": "http://127.0.0.1:4173"
+        }
+      ]
+    },
+    "live": {
+      "base": "https://chore-receipt.sociobot.in",
+      "checks": {
+        "firstRead": {
+          "title": "Chore Receipt — log shared chores",
+          "h1": [
+            "Record chores when they get done"
+          ],
+          "audience": [
+            "For roommates and families who share the work and need to know what is due next."
+          ],
+          "demoAction": 1
+        },
+        "oneClickDemo": {
+          "url": "https://chore-receipt.sociobot.in/demo",
+          "banner": 0,
+          "chores": 0,
+          "bodyExcerpt": "OUR HOME\n\nShared chore board\n\nMark the outcome. The next due date follows completion.\n\nAdd a chore\nExport data\nReady for anyone\n0 due now\nNo chores yet\n\nYour shared chores will appear here. Add one to make its first receipt.\n\nAdd a chore\nRecent receipts\nView all\n\nA time-stamped receipt appears when someone marks a chore done.",
+          "indexedDB": [
+            "chore-receipt-real-v1"
+          ]
+        },
+        "directDemo": {
+          "title": "Demo — Chore Receipt",
+          "banner": "Demo — sample data, nothing is saved.\nReset demo\nStart for real",
+          "chores": 4,
+          "receipts": 4,
+          "household": "MAPLE STREET HOME",
+          "indexedDB": [
+            "chore-receipt-demo-v1",
+            "chore-receipt-real-v1"
+          ]
+        },
+        "completeUndo": {
+          "firstTitle": "Clean the bathroom",
+          "notice": "Receipt added for Clean the bathroom. Next due Sep 4. Undo",
+          "beforeReceipts": 4,
+          "afterReceipts": 4,
+          "afterUndoReceipts": 4
+        },
+        "csv": {
+          "filename": "chore-receipts.csv",
+          "lines": 5,
+          "first": "chore,completed_at,due_at",
+          "sample": "\"Water the plants\",2026-08-26T05:26:20.087Z,2026-08-31T05:26:20.087Z"
+        },
+        "qr": {
+          "image": 0,
+          "note": "The household QR could not be made. Export a JSON backup instead.",
+          "hrefLength": 0
+        },
+        "closeButton": {
+          "openAfterClick": true
+        },
+        "whitespaceInput": {
+          "dialogOpen": true,
+          "message": "",
+          "invalid": false
+        },
+        "persistence": {
+          "titleCount": 1,
+          "databaseNames": [
+            "chore-receipt-real-v1"
+          ]
+        },
+        "json": {
+          "filename": "chore-receipt-backup.json",
+          "household": "Our home",
+          "chores": 1,
+          "receipts": 0
+        },
+        "mobile": {
+          "viewport": {
+            "innerWidth": 390,
+            "scrollWidth": 390
+          },
+          "smallTargets": [
+            {
+              "text": "▰ Chore Receipt",
+              "width": 138,
+              "height": 39
+            },
+            {
+              "text": "Receipt log",
+              "width": 73,
+              "height": 20
+            },
+            {
+              "text": "Privacy",
+              "width": 47,
+              "height": 20
+            },
+            {
+              "text": "Add your first chore →",
+              "width": 199,
+              "height": 24
+            },
+            {
+              "text": "Read the privacy details",
+              "width": 219,
+              "height": 19
+            },
+            {
+              "text": "Privacy",
+              "width": 45,
+              "height": 19
+            },
+            {
+              "text": "Terms",
+              "width": 37,
+              "height": 19
+            },
+            {
+              "text": "Built by Param Factory",
+              "width": 141,
+              "height": 19
+            }
+          ],
+          "reducedMotion": {
+            "media": true,
+            "htmlScroll": "auto",
+            "buttonTransition": "1e-05s"
+          }
+        },
+        "routes": {
+          "/": {
+            "status": 200,
+            "title": "Chore Receipt — log shared chores",
+            "lang": "en",
+            "h1": 1,
+            "main": 1,
+            "seriousCritical": [],
+            "allAxe": [],
+            "errors": []
+          },
+          "/demo": {
+            "status": 200,
+            "title": "Demo — Chore Receipt",
+            "lang": "en",
+            "h1": 1,
+            "main": 1,
+            "seriousCritical": [],
+            "allAxe": [],
+            "errors": []
+          },
+          "/log": {
+            "status": 200,
+            "title": "Receipt log — Chore Receipt",
+            "lang": "en",
+            "h1": 1,
+            "main": 1,
+            "seriousCritical": [],
+            "allAxe": [],
+            "errors": []
+          },
+          "/settings": {
+            "status": 200,
+            "title": "Household — Chore Receipt",
+            "lang": "en",
+            "h1": 1,
+            "main": 1,
+            "seriousCritical": [],
+            "allAxe": [],
+            "errors": []
+          },
+          "/privacy": {
+            "status": 200,
+            "title": "Privacy — Chore Receipt",
+            "lang": "en",
+            "h1": 1,
+            "main": 1,
+            "seriousCritical": [],
+            "allAxe": [],
+            "errors": []
+          },
+          "/terms": {
+            "status": 200,
+            "title": "Terms — Chore Receipt",
+            "lang": "en",
+            "h1": 1,
+            "main": 1,
+            "seriousCritical": [],
+            "allAxe": [],
+            "errors": []
+          },
+          "/not-a-page": {
+            "status": 200,
+            "title": "Chore Receipt — log shared chores",
+            "lang": "en",
+            "h1": 1,
+            "main": 1,
+            "seriousCritical": [],
+            "allAxe": [],
+            "errors": []
+          }
+        },
+        "keyboard": {
+          "focusTrail": [
+            {
+              "tag": "A",
+              "text": "Try it with sample data",
+              "outline": "rgb(199, 80, 56) solid 3px",
+              "rect": {
+                "x": 50,
+                "y": 516.84375,
+                "width": 243.671875,
+                "height": 46,
+                "top": 516.84375,
+                "right": 293.671875,
+                "bottom": 562.84375,
+                "left": 50
+              }
+            },
+            {
+              "tag": "BUTTON",
+              "text": "Add your first chore →",
+              "outline": "rgb(199, 80, 56) solid 3px",
+              "rect": {
+                "x": 50,
+                "y": 634.5625,
+                "width": 199.21875,
+                "height": 24,
+                "top": 634.5625,
+                "right": 249.21875,
+                "bottom": 658.5625,
+                "left": 50
+              }
+            },
+            {
+              "tag": "A",
+              "text": "Read the privacy details",
+              "outline": "rgb(199, 80, 56) solid 3px",
+              "rect": {
+                "x": 50,
+                "y": 1435.71875,
+                "width": 219.234375,
+                "height": 19,
+                "top": 1435.71875,
+                "right": 269.234375,
+                "bottom": 1454.71875,
+                "left": 50
+              }
+            },
+            {
+              "tag": "A",
+              "text": "Privacy",
+              "outline": "rgb(199, 80, 56) solid 3px",
+              "rect": {
+                "x": 929.5,
+                "y": 1600,
+                "width": 45.15625,
+                "height": 18.71875,
+                "top": 1600,
+                "right": 974.65625,
+                "bottom": 1618.71875,
+                "left": 929.5
+              }
+            },
+            {
+              "tag": "A",
+              "text": "Terms",
+              "outline": "rgb(199, 80, 56) solid 3px",
+              "rect": {
+                "x": 987.65625,
+                "y": 1600,
+                "width": 36.71875,
+                "height": 18.71875,
+                "top": 1600,
+                "right": 1024.375,
+                "bottom": 1618.71875,
+                "left": 987.65625
+              }
+            },
+            {
+              "tag": "A",
+              "text": "Built by Param Factory",
+              "outline": "rgb(199, 80, 56) solid 3px",
+              "rect": {
+                "x": 1037.375,
+                "y": 1600,
+                "width": 140.515625,
+                "height": 18.71875,
+                "top": 1600,
+                "right": 1177.890625,
+                "bottom": 1618.71875,
+                "left": 1037.375
+              }
+            },
+            {
+              "tag": "BODY",
+              "text": "Skip to content▰ Chore ReceiptReceipt logHouseholdPrivacyA h",
+              "outline": "rgb(36, 48, 43) none 0px",
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 1646.71875,
+                "top": 0,
+                "right": 1280,
+                "bottom": 1646.71875,
+                "left": 0
+              }
+            },
+            {
+              "tag": "A",
+              "text": "Skip to content",
+              "outline": "rgb(199, 80, 56) solid 3px",
+              "rect": {
+                "x": 12,
+                "y": 12,
+                "width": 151.515625,
+                "height": 44,
+                "top": 12,
+                "right": 163.515625,
+                "bottom": 56,
+                "left": 12
+              }
+            }
+          ]
+        }
+      },
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requests": [
+        {
+          "url": "https://chore-receipt.sociobot.in/",
+          "origin": "https://chore-receipt.sociobot.in"
+        },
+        {
+          "url": "https://chore-receipt.sociobot.in/assets/app.js",
+          "origin": "https://chore-receipt.sociobot.in"
+        },
+        {
+          "url": "https://chore-receipt.sociobot.in/assets/app.css",
+          "origin": "https://chore-receipt.sociobot.in"
+        },
+        {
+          "url": "https://chore-receipt.sociobot.in/kitchen-diorama.webp",
+          "origin": "https://chore-receipt.sociobot.in"
+        }
+      ]
+    }
+  }
+}

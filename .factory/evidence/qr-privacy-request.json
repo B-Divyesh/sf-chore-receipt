@@ -1,0 +1,14 @@
+{
+  "shareUrlLength": 476,
+  "documentRequests": [
+    {
+      "urlLength": 476,
+      "origin": "https://chore-receipt.sociobot.in",
+      "queryNames": [
+        "join"
+      ],
+      "queryLength": 442
+    }
+  ],
+  "finalUrl": "https://chore-receipt.sociobot.in/"
+}

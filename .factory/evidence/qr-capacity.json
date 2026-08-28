@@ -1,0 +1,42 @@
+[
+  {
+    "completedChores": 1,
+    "qrImages": 1,
+    "result": "Open share link"
+  },
+  {
+    "completedChores": 2,
+    "qrImages": 1,
+    "result": "Open share link"
+  },
+  {
+    "completedChores": 3,
+    "qrImages": 0,
+    "result": "The household QR could not be made. Export a JSON backup instead."
+  },
+  {
+    "completedChores": 4,
+    "qrImages": 0,
+    "result": "The household QR could not be made. Export a JSON backup instead."
+  },
+  {
+    "completedChores": 5,
+    "qrImages": 0,
+    "result": "The household QR could not be made. Export a JSON backup instead."
+  },
+  {
+    "completedChores": 6,
+    "qrImages": 0,
+    "result": "The household QR could not be made. Export a JSON backup instead."
+  },
+  {
+    "completedChores": 7,
+    "qrImages": 0,
+    "result": "The household QR could not be made. Export a JSON backup instead."
+  },
+  {
+    "completedChores": 8,
+    "qrImages": 0,
+    "result": "The household QR could not be made. Export a JSON backup instead."
+  }
+]
