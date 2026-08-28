@@ -291,7 +291,6 @@ test('@claim:copies-no-sync Re-import applies edits and removals but keeps desti
   await sourcePage.getByRole('link', { name: 'Household' }).click();
   await sourcePage.getByRole('button', { name: 'Create household QR' }).click();
   const updatedHref = await sourcePage.getByRole('link', { name: 'Open share link' }).getAttribute('href');
-  await recipientPage.goto('about:blank');
   await recipientPage.goto(updatedHref!);
   await expect(recipientPage.getByText('Household copy updated. Chore changes and receipt history were imported.')).toBeVisible();
   await expect(recipientPage.getByRole('heading', { name: 'Take recycling out' })).toBeVisible();

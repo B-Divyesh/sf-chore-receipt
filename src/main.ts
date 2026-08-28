@@ -325,8 +325,10 @@ async function importJoin() {
   try {
     await merge(decodePacket(joined));
     history.replaceState({}, "", route());
+    sessionStorage.removeItem("join-error");
     sessionStorage.setItem("joined", "1");
   } catch {
+    sessionStorage.removeItem("joined");
     sessionStorage.setItem("join-error", "1");
     history.replaceState({}, "", route());
   }
@@ -833,4 +835,14 @@ function bind() {
     });
 }
 window.addEventListener("popstate", () => render(true));
+window.addEventListener("hashchange", async () => {
+  if (!new URLSearchParams(location.hash.slice(1)).has("join")) return;
+  await importJoin();
+  render();
+  const announcement = document.querySelector<HTMLElement>(".announcer");
+  if (announcement)
+    announcement.textContent = sessionStorage.getItem("joined")
+      ? "Household copy updated. Chore changes and receipt history were imported."
+      : "That household code could not be read. Ask for a new one.";
+});
 init();
