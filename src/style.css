@@ -282,6 +282,110 @@ h3 {
   font-style: italic;
   font-size: 0.95rem;
 }
+.sample-preview {
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px dashed #aa9e88;
+  padding: 61px 0 64px;
+  display: grid;
+  grid-template-columns: minmax(220px, 0.68fr) minmax(0, 1.15fr);
+  align-items: center;
+  gap: clamp(32px, 7vw, 96px);
+}
+.preview-intro h2 {
+  max-width: 11ch;
+  margin-bottom: 13px;
+}
+.preview-intro > p:not(.section-kicker) {
+  max-width: 31ch;
+  color: var(--muted);
+}
+.preview-intro .text-link {
+  margin-top: 19px;
+}
+.preview-board {
+  background: var(--surface);
+  border: 1px solid #d7cdbb;
+  box-shadow: 9px 10px 0 #d2c2a4;
+  padding: clamp(17px, 3vw, 28px);
+  clip-path: polygon(1% 0, 100% 1%, 99% 99%, 0 97%);
+}
+.preview-board-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  padding-bottom: 13px;
+  border-bottom: 2px solid var(--ink);
+}
+.preview-board-head .eyebrow {
+  margin-bottom: 5px;
+}
+.preview-board-head h3 {
+  font-family: Georgia, serif;
+  font-size: 1.45rem;
+  margin: 0;
+}
+.preview-count {
+  color: var(--danger);
+  font-weight: 800;
+  font-size: 0.83rem;
+  white-space: nowrap;
+}
+.preview-chores {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.preview-chores li {
+  display: grid;
+  grid-template-columns: 8px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid #cabeaa;
+}
+.preview-chores b,
+.preview-receipt b {
+  font-size: 0.98rem;
+}
+.preview-chores p,
+.preview-receipt-copy {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.preview-chores strong {
+  color: var(--danger);
+}
+.preview-clip {
+  width: 8px;
+  height: 31px;
+  background: var(--clay);
+  transform: rotate(-2deg);
+}
+.preview-done {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--moss);
+  border-radius: 50%;
+  color: var(--moss);
+  background: var(--moss-pale);
+  font-weight: 800;
+}
+.preview-receipt {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  margin: 17px -6px -6px;
+  padding: 13px 7px 5px;
+  border-top: 2px dashed #aa9e88;
+  transform: rotate(-0.7deg);
+}
+.preview-receipt-copy {
+  display: block;
+}
 .how {
   border-top: 2px solid var(--ink);
   padding: 67px 0 58px;
@@ -726,6 +830,13 @@ dialog .button {
   .how {
     display: block;
     padding: 49px 0;
+  }
+  .sample-preview {
+    display: block;
+    padding: 49px 0 54px;
+  }
+  .preview-board {
+    margin-top: 31px;
   }
   .how ol {
     margin-top: 31px;

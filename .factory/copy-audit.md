@@ -9,11 +9,24 @@ this record matches the rendered text and that each count remains accurate.
 | Record chores when they get done | 6 | pass |
 | For roommates and families who share the work and need to know what is due next. | 16 | pass |
 | Try it with sample data | 5 | pass |
+| See a working shared chore board. | 6 | pass |
 | Works offline after setup | 4 | pass |
 | Stored on this device | 4 | pass |
 | Free to use | 3 | pass |
 | Add your first chore → | 5 | pass |
 | Keep the outcome. Skip the blame. | 6 | pass |
+| Sample board preview | 3 | pass |
+| See a chore receipt at work | 6 | pass |
+| This is Maple Street home. It is a sample, not your data. | 12 | pass |
+| Open the editable sample board → | 6 | pass |
+| Maple Street home | 3 | pass |
+| Ready for anyone | 3 | pass |
+| 2 due now | 3 | pass |
+| Clean the bathroom | 3 | pass |
+| 1 day overdue · repeats every 7 days | 8 | pass |
+| Water the plants | 3 | pass |
+| Due in 3 days · repeats every 5 days | 9 | pass |
+| Done Aug 26 · next Aug 31 | 7 | pass |
 | How it works | 3 | pass |
 | One receipt, then a clear next date | 7 | pass |
 | Keep a shared list. | 4 | pass |

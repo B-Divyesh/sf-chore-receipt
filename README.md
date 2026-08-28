@@ -9,7 +9,7 @@ changes are deleted when you select **Start for real**.
 ## What it does
 
 - Records a completion as a time-stamped receipt and calculates the next date.
-- Exports receipts as CSV and exports or imports a JSON backup.
+- Exports receipts as CSV and exports or imports a JSON backup from Household.
 - Shares an opt-in household copy with a QR code. The copy stays after the #
   in the link, which browsers do not send to this site.
 - Works offline after setup. It is free to use.

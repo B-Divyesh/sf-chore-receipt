@@ -141,13 +141,14 @@ test('@claim:csv-export CSV export contains one row for every demo receipt', asy
 test('@claim:json-backup JSON import restores household, chores, and receipts into a fresh store', async ({ browser }) => {
   const source = await browser.newContext();
   const sourcePage = await freshPage(source, '/demo');
-  const { buffer } = await downloadBuffer(sourcePage, 'Export data');
+  const { buffer } = await downloadBuffer(sourcePage, 'Export JSON backup');
   const exported = JSON.parse(buffer.toString()) as Backup;
   await source.close();
 
   const target = await browser.newContext();
   const targetPage = await freshPage(target, '/settings');
   expect(await databaseValue(targetPage, 'chore-receipt-real-v1')).toBeUndefined();
+  await expect(targetPage.getByRole('button', { name: 'Export JSON backup' })).toBeVisible();
   await targetPage.getByLabel('Choose JSON file').setInputFiles({ name: 'backup.json', mimeType: 'application/json', buffer });
   await expect(targetPage.getByText('Backup imported. Newer records were kept.')).toBeVisible();
   await targetPage.reload();
@@ -216,6 +217,7 @@ test('@claim:copies-no-sync Household copies stay separate until someone imports
 
 test('@claim:receipt-next-date Completing a chore records a receipt and its exact interval', async ({ page }) => {
   await page.goto('/demo');
+  await expect.poll(() => databaseValue(page, 'chore-receipt-demo-v1')).not.toBeUndefined();
   const before = (await databaseValue(page, 'chore-receipt-demo-v1') as Backup).receipts.length;
   await page.getByRole('button', { name: /Mark Water the plants done/ }).click();
   await expect(page.locator('.notice')).toContainText('Receipt added for Water the plants');
@@ -305,6 +307,21 @@ test('mobile navigation visibly reaches Household and controls keep their target
   }
 });
 
+test('the landing page shows a labelled sample board before explaining how it works', async ({ page }) => {
+  await page.goto('/');
+  const preview = page.locator('.sample-preview');
+  await expect(preview).toBeVisible();
+  await expect(preview.getByText('Maple Street home', { exact: true })).toBeVisible();
+  await expect(preview.getByText('Clean the bathroom')).toBeVisible();
+  await expect(preview.getByText('1 day overdue')).toBeVisible();
+  await expect(preview.getByText('Done Aug 26 · next Aug 31')).toBeVisible();
+  const order = await page.locator('.hero,.sample-preview,.how').evaluateAll((items) => items.map((item) => item.className));
+  expect(order).toEqual(['hero', 'sample-preview', 'how']);
+  await preview.getByRole('link', { name: 'Open the editable sample board' }).click();
+  await expect(page).toHaveURL(/\/demo$/);
+  await expect(page.getByLabel('Demo controls')).toContainText('sample data, nothing is saved');
+});
+
 test('the 390px demo has no overflow or clipped controls at 200% text', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/demo');
@@ -377,7 +394,7 @@ test('hashed assets are immutable and the service worker always revalidates', as
 test('the committed copy audit matches every current landing sentence', async ({ page }) => {
   await page.goto('/');
   const audited = readFileSync('.factory/copy-audit.md', 'utf8');
-  const copy = await page.locator('.hero,.how,.privacy-note').locator('h1,h2,p,b,li > span,.button,.text-link,.facts > span,figcaption').allTextContents();
+  const copy = await page.locator('.hero,.sample-preview,.how,.privacy-note').locator('h1,h2,h3,p,b,.how li > span,.button,.text-link,.facts > span,.preview-count,.preview-receipt-copy,figcaption').allTextContents();
   for (const item of [...new Set(copy.map((text) => text.trim()).filter(Boolean))]) expect(audited, item).toContain(`| ${item.replaceAll('|', '\\|')} |`);
   for (const line of audited.split('\n').filter((line) => /^\| .+ \| \d+ \| pass \|$/i.test(line))) {
     const cells = line.split('|').map((cell) => cell.trim()); const words = cells[1].replaceAll('\\|', '|').split(/\s+/).filter(Boolean).length;
