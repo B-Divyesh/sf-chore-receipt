@@ -1,30 +1,37 @@
-# Adversarial review 1 handoff — FAIL
+# Chore Receipt — polish 1 handoff
 
-Reviewed the live Chore Receipt PWA and repository at base
-`61751991bc9835d2260c04bee33289f07637cc88`. The complete report is
-`.factory/review-1.md`.
+Repair commit: `d1451c056ac207188d0c20909d6ec762e62a7ed6`.
 
-No product code was changed. The review found two blockers: a live 404 can
-replace the cached app shell and break later offline navigation, and the 390 px
-layout hides the only Household link. Additional findings cover corrupt-store
-recovery, SPA route focus/announcements, missing chore edit/remove controls,
-claim-test coverage, no-sync disclosure, route/404 metadata, a silent form
-error, copy, and documentation drift.
+This repair closes every finding in `.factory/review-1.md`: safe offline shell
+caching after 404s, visible mobile Household navigation, corrupt-data recovery,
+accessible route changes, chore editing/removal, stronger claims tests,
+no-sync disclosure, route metadata, complete 404 structure, form errors, and
+the listed copy/documentation defects. The paper-cut household-record visual
+system was retained.
 
-Verification performed:
+Verification on 2026-08-28 UTC:
 
-- Cold live reads at 390×844 and 1440×900.
-- One-click live demo, Reset, Start for real, pre-existing real-data isolation,
-  QR request interception, and normal offline reload.
-- Live 404 cache-poison reproduction while offline.
-- Live route/title/h1/header/footer/metadata audit and link crawl.
-- Live keyboard focus, 44 px targets, 200% text, verify-url, and axe checks.
-- Every command in `.factory/claims.json` from a fresh temporary clone: all 10
-  passed.
-- Full clean-clone `npm test`: 16/16 passed.
-- Clean-clone `npm run build`: passed and produced `dist/` (16.95 kB gzip JS).
-- All earlier handoff repairs independently checked and confirmed fixed.
+- Fresh GitHub clone of `d1451c0`: `npm ci` succeeded with zero vulnerabilities;
+  every exact command in `.factory/claims.json` passed (11/11).
+- Fresh-clone full suite: `npm test` passed, 25/25 Playwright tests.
+- `npm run build` passed and produced `dist/`; initial JS is 51.04 kB raw /
+  18.25 kB gzip and CSS is 12.59 kB raw / 3.76 kB gzip.
+- Local `verify-url.sh http://127.0.0.1:4173/demo` passed. Evidence:
+  `.factory/evidence/polish-1-local/`.
+- Deployed `dist/` to Static Web App `sf-chore-receipt` production. Live
+  `verify-url.sh https://chore-receipt.sociobot.in/demo` passed in 794 ms with
+  no console errors, `lang=en`, one h1, main, title, and labelled controls.
+  Evidence: `.factory/evidence/polish-1-live/`.
+- Cold live browser review passed: first-screen wording, one-click `/demo`,
+  `?demo=1`, demo reset, 404-safe offline `/log`, mobile Household navigation,
+  every route’s metadata, and a true 404. Playwright axe passed all seven
+  routes with no serious or critical findings.
 
-Start repair work with F-1-1 and F-1-2, add the regressions specified in the
-report, then rerun the complete checklist. The repository is buildable; only
-this review and handoff are intended to be committed by this work order.
+`npx @axe-core/cli` could not launch because this container lacks a system
+Chrome binary; the repository’s Playwright axe integration and the live
+Playwright axe audit both passed instead.
+
+Known gaps: none.
+
+To run locally: `npm ci && npm test && npm run build`, then
+`npm run preview` and visit `/demo` or `/?demo=1`.
