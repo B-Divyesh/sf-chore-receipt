@@ -30,13 +30,12 @@ The complete finding-by-finding mapping is in `.factory/polish-4.md`.
 
 ## Verification
 
-Final clean clone: `/tmp/chore-receipt-polish4-release.lN2REJ/repo` at
-`6dd0fa34083511f54ef9f5db679ddcc856b21465`.
+Final clean clone: `/tmp/chore-receipt-polish4-handoff.qNTZTO/repo` at
+`0be43f852f73dc40d9d591f03f4e276e3b05c9e8`.
 
 1. `npm ci` passed with 0 vulnerabilities.
 2. All 13 exact claim commands from `.factory/claims.json` passed separately.
-3. `npm test -- --workers=1` passed 30/30 in that clean clone. Two additional
-   plain-copy regressions then raised the current local suite to 32/32.
+3. `npm test -- --workers=1` passed 32/32 in that clean clone.
 4. `npm run build` passed and produced `dist/index.html`. Initial JavaScript is
    55.67 kB raw / 19.12 kB gzip; CSS is 14.44 kB raw / 4.12 kB gzip.
 5. `PLAYWRIGHT_BASE_URL=https://chore-receipt.sociobot.in npm test -- --workers=1`

@@ -58,12 +58,11 @@ live screenshots are cold 390×844 Chromium captures from the final deployment.
 
 ## Verification summary
 
-- Final clean remote clone: `/tmp/chore-receipt-polish4-release.lN2REJ/repo`
-  at `6dd0fa34083511f54ef9f5db679ddcc856b21465`.
+- Final clean remote clone: `/tmp/chore-receipt-polish4-handoff.qNTZTO/repo`
+  at `0be43f852f73dc40d9d591f03f4e276e3b05c9e8`.
 - `npm ci`: 0 vulnerabilities.
 - Every exact command in `.factory/claims.json`: 13/13 passed individually.
-- Full final product suite before the two documentation regressions: 30/30;
-  current working-tree suite with those regressions: 32/32.
+- Full final clean-clone suite: 32/32.
 - `npm run build`: passed; `dist/index.html` present; initial JS 55.67 kB raw /
   19.12 kB gzip and CSS 14.44 kB raw / 4.12 kB gzip.
 - Final live product suite: 32/32. This includes seven-route Axe, offline
