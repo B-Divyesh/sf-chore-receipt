@@ -1,0 +1,90 @@
+{
+  "landing": {
+    "status": 200,
+    "title": "Chore Receipt — record shared chores",
+    "h1": "Record chores when they get done",
+    "demoAction": true,
+    "householdLink": true,
+    "scrollWidth": 390,
+    "clientWidth": 390
+  },
+  "demoReset": {
+    "url": "https://chore-receipt.sociobot.in/?demo=1",
+    "title": "Demo — Chore Receipt",
+    "banner": "Demo — sample data, nothing is saved.\nReset demo\nStart for real",
+    "announcement": "Demo reset to four sample chores and four receipts.",
+    "focus": "Reset demo",
+    "chores": 4,
+    "undoButtons": 0,
+    "staleNotices": 0
+  },
+  "copyReimport": {
+    "sameTabFragment": true,
+    "edited": 1,
+    "oldTitle": 0,
+    "removed": 0,
+    "destinationOnly": 1,
+    "receipts": 4
+  },
+  "routes": {
+    "/": {
+      "status": 200,
+      "title": "Chore Receipt — record shared chores",
+      "h1": "Record chores when they get done",
+      "canonical": "https://chore-receipt.sociobot.in/",
+      "h1Count": 1,
+      "mainCount": 1
+    },
+    "/demo": {
+      "status": 200,
+      "title": "Demo — Chore Receipt",
+      "h1": "Shared chore board",
+      "canonical": "https://chore-receipt.sociobot.in/demo",
+      "h1Count": 1,
+      "mainCount": 1
+    },
+    "/log": {
+      "status": 200,
+      "title": "Receipt log — Chore Receipt",
+      "h1": "Every chore receipt",
+      "canonical": "https://chore-receipt.sociobot.in/log",
+      "h1Count": 1,
+      "mainCount": 1
+    },
+    "/settings": {
+      "status": 200,
+      "title": "Household — Chore Receipt",
+      "h1": "Household and data",
+      "canonical": "https://chore-receipt.sociobot.in/settings",
+      "h1Count": 1,
+      "mainCount": 1
+    },
+    "/privacy": {
+      "status": 200,
+      "title": "Privacy — Chore Receipt",
+      "h1": "Your household data stays here",
+      "canonical": "https://chore-receipt.sociobot.in/privacy",
+      "h1Count": 1,
+      "mainCount": 1
+    },
+    "/terms": {
+      "status": 200,
+      "title": "Terms — Chore Receipt",
+      "h1": "Terms for using Chore Receipt",
+      "canonical": "https://chore-receipt.sociobot.in/terms",
+      "h1Count": 1,
+      "mainCount": 1
+    },
+    "/cold-missing-round-four": {
+      "status": 404,
+      "title": "Page not found — Chore Receipt",
+      "h1": "This page is missing.",
+      "privacy": 2,
+      "terms": 1
+    }
+  },
+  "errors": [],
+  "finalAsset": "assets/index-80aJnVXw.js",
+  "finalCommit": "6dd0fa3",
+  "mobileFileInputHidden": true
+}

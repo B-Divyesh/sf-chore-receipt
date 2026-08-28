@@ -1,52 +1,75 @@
-# Chore Receipt — adversarial review 4 handoff
+# Chore Receipt — polish 4 handoff
 
-## Work completed
+## Outcome
 
-- Reviewed the deployed product cold at 390×844 and 1440×900.
-- Read the brief, design, claims, demo documentation, README, all prior
-  reviews, all polish records, and the prior handoff.
-- Rechecked every earlier finding on the live site and in source/tests.
-- Audited landing and README copy, the one-click demo, storage isolation,
-  Reset, Start for real, request privacy, offline behavior, routes, metadata,
-  links, focus/history, accessibility, 404 design, visual identity, and missed
-  leverage.
-- Wrote `.factory/review-4.md`. No product code was changed.
+All cumulative findings from `.factory/review-1.md` through
+`.factory/review-4.md` are fixed and verified. Chore Receipt remains a static,
+local-first offline PWA with the existing paper-cut household identity.
 
-## Verdict
+The released product is <https://chore-receipt.sociobot.in>. Product commits
+are `76a040c`, `a86da60`, and `6dd0fa3`. The final production deployment ID is
+`bcabe938-7437-4ee4-b1fd-f6e67a8a029c`.
 
-**FAIL.** The review records nine findings. Blocking findings are the stale
-completion result left by **Reset demo** and repeated claim-coverage
-overstatement F-1-15. Re-import also fails to carry removed chores to another
-device despite the update instruction.
+## What changed
+
+- Reset now removes stale completion/Undo state, restores the exact sample,
+  announces the reset, returns focus, and leaves real household data intact.
+- QR and JSON copies carry chore-removal tombstones. Repeat imports apply
+  edits and removals while retaining receipt history and destination-only
+  chores. Same-tab `#join` navigation now imports immediately.
+- `.factory/claims.json` now contains 13 scoped claims. Reset, editable demo,
+  and no-scoring outcomes have declared tests; a registry test enforces one
+  tagged test per claim.
+- The 404, board introduction, receipt actions, README privacy copy, catalog
+  description, and claim wording use direct, consistent language.
+- The styled JSON chooser now hides its native input correctly on mobile.
+- The paper-cut diorama, receipt shapes, warm paper palette, moss/clay colors,
+  serif/sans type, and restrained motion remain unchanged.
+
+The complete finding-by-finding mapping is in `.factory/polish-4.md`.
 
 ## Verification
 
-Clean clone: `/tmp/chore-receipt-review4.6b62HE/repo` at
-`28290e0aa2797abdd03810e35e2e9159112dc074`.
+Final clean clone: `/tmp/chore-receipt-polish4-release.lN2REJ/repo` at
+`6dd0fa34083511f54ef9f5db679ddcc856b21465`.
 
 1. `npm ci` passed with 0 vulnerabilities.
-2. Every exact command in `.factory/claims.json` passed individually: 11/11.
-3. `npm test -- --workers=1` passed 27/27 in the clean clone.
-4. `npm run build` passed and produced `dist/`; initial JS is 53.96 kB raw /
-   18.74 kB gzip.
-5. After producing the local `dist/` artifact needed by one repository-only
-   cache assertion,
-   `PLAYWRIGHT_BASE_URL=https://chore-receipt.sociobot.in npm test -- --workers=1`
-   passed 27/27.
-6. `/opt/fleet/lib/verify-url.sh https://chore-receipt.sociobot.in/ <temp-dir>`
-   passed with no console errors and confirmed language, title, h1, main, alt
-   text, and labelled buttons.
-7. Manual live checks confirmed demo/real IndexedDB separation, Start for real
-   deletion, same-origin GET-only request traffic, true-404 then offline
-   recovery, six route metadata sets, designed HTTP 404, link status, and
-   click/Back/Forward focus announcements.
-8. Manual live checks reproduced the two behavior gaps: Reset restored four
-   stored receipts but retained the false receipt notice and Undo control; a
-   re-import after source removal left the removed chore on the recipient.
+2. All 13 exact claim commands from `.factory/claims.json` passed separately.
+3. `npm test -- --workers=1` passed 30/30 in that clean clone. Two additional
+   plain-copy regressions then raised the current local suite to 32/32.
+4. `npm run build` passed and produced `dist/index.html`. Initial JavaScript is
+   55.67 kB raw / 19.12 kB gzip; CSS is 14.44 kB raw / 4.12 kB gzip.
+5. `PLAYWRIGHT_BASE_URL=https://chore-receipt.sociobot.in npm test -- --workers=1`
+   passed 32/32 against the final deployment.
+6. The factory URL verifier found no console errors and confirmed the title,
+   language, one h1, one main, alt text, and labelled buttons.
+7. The live seven-route Axe integration reported no serious or critical
+   issues. Mobile 200% text, 44px targets, keyboard/dialog behavior, route
+   focus/announcements, reduced motion, privacy requests, and offline reload
+   all pass in the suite.
+8. Live Lighthouse scored 100 in performance, accessibility, best practices,
+   and SEO. FCP was 955 ms, LCP 1,555 ms, TBT 0 ms, and CLS 0.014.
+9. The final cold browser audit confirmed all six 200 routes, the real 404,
+   direct `?demo=1`, Reset, same-tab repeat import, mobile navigation, no
+   horizontal overflow, route metadata, legal links, and zero console errors.
 
-## Handoff notes
+Evidence is under `.factory/evidence/polish-4-live/`, especially
+`live-audit.json`, `verify.json`, `lighthouse-mobile.json`,
+`demo-reset-mobile.png`, `copy-reimport-mobile.png`, `settings-mobile.png`, and
+`404-mobile.png`.
 
-See `.factory/review-4.md` for exact quotes, evidence, copy counts, every prior
-finding, and concrete fixes. The highest-priority repair is to clear transient
-state during Reset and add a declared Reset claim test. Then define replacement
-versus merge semantics for QR/JSON imports and make the copy and tests match.
+## Run and deploy
+
+```sh
+npm ci
+npm test -- --workers=1
+npm run build
+```
+
+Deploy `dist/` with the configured static work order. No backend, account,
+payment service, analytics, remote font, or runtime AI dependency is required.
+
+## Known gaps and next steps
+
+None within the researched brief or cumulative review scope. No follow-up is
+required for release.

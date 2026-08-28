@@ -1,0 +1,58 @@
+{
+  "routes": {
+    "/": {
+      "status": 200,
+      "title": "Chore Receipt — record shared chores",
+      "h1": "Record chores when they get done",
+      "mains": 1
+    },
+    "/demo": {
+      "status": 200,
+      "title": "Demo — Chore Receipt",
+      "h1": "Shared chore board",
+      "mains": 1
+    },
+    "/log": {
+      "status": 200,
+      "title": "Receipt log — Chore Receipt",
+      "h1": "Every chore receipt",
+      "mains": 1
+    },
+    "/settings": {
+      "status": 200,
+      "title": "Household — Chore Receipt",
+      "h1": "Household and data",
+      "mains": 1
+    },
+    "/privacy": {
+      "status": 200,
+      "title": "Privacy — Chore Receipt",
+      "h1": "Your household data stays here",
+      "mains": 1
+    },
+    "/terms": {
+      "status": 200,
+      "title": "Terms — Chore Receipt",
+      "h1": "Terms for using Chore Receipt",
+      "mains": 1
+    },
+    "/404.html": {
+      "status": 200,
+      "title": "Page not found — Chore Receipt",
+      "h1": "This page is missing.",
+      "mains": 1
+    }
+  },
+  "reset": {
+    "announcement": "Demo reset to four sample chores and four receipts.",
+    "focused": "Reset demo",
+    "chores": 4,
+    "undo": 0
+  },
+  "mobile": {
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "h1": "Record chores when they get done"
+  },
+  "errors": []
+}

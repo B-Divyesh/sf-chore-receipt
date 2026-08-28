@@ -503,6 +503,27 @@ test('landing headings name the product sections without slogans', async ({ page
   await expect(page.getByRole('heading', { name: 'Current chores' })).toBeVisible();
 });
 
+test('board instructions and receipt actions name the chore and result', async ({ page }) => {
+  await page.goto('/demo');
+  await expect(page.getByText('Mark a chore done. Its repeat interval sets the next due date.')).toBeVisible();
+  await expect(page.getByText('Mark the outcome.')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'View all receipts' })).toBeVisible();
+  await page.getByRole('button', { name: /Mark Water the plants done/ }).click();
+  await expect(page.getByRole('button', { name: 'Undo receipt' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Undo', exact: true })).toHaveCount(0);
+});
+
+test('README and catalog use plain, bounded product wording', () => {
+  const readme = readFileSync('README.md', 'utf8').replace(/\s+/g, ' ');
+  expect(readme).toContain('The copy stays after the # in the link, which browsers do not send to this site.');
+  expect(readme).toContain('The demo keeps its sample separate from your household data.');
+  expect(readme).not.toContain('browser database');
+  expect(readme).not.toContain('Each public claim');
+  const catalog = readFileSync('.factory/catalog-description.txt', 'utf8').trim();
+  expect(catalog).toBe('Record shared chores, keep completion receipts, and see what is due next.');
+  expect(catalog.length).toBeLessThanOrEqual(120);
+});
+
 test('the committed copy audit matches every current landing copy unit and sentence', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('[data-copy-audit="header-wordmark"]')).toBeVisible();
