@@ -1,4 +1,36 @@
-# Chore Receipt — polish 2 handoff
+# Chore Receipt — review 3 handoff
+
+## Review result
+
+No product code was modified. Review commit documents a **FAIL** of the live
+release: repeated blocking `F-1-18` (the committed landing copy audit is not
+one row per rendered sentence and omits rendered text), plus four minor
+plain-words copy findings. See `.factory/review-3.md` for exact quotes,
+evidence, and rewrites.
+
+## Review verification
+
+- Cold live first-read checks at 390×844 and 1440×900 were clear about the
+  job, audience, and first action.
+- Live demo was exercised from one click through completion, Reset demo, and
+  Start for real. It showed four realistic chores/four receipts, preserved
+  isolation, and showed the required banner.
+- Live request logging found same-origin GET-only app traffic. A true 404
+  before offline mode retained the HTTP-200 app shell and rendered offline
+  `/log` correctly.
+- From fresh clone `/tmp/chore-receipt-review3.b26nhh/repo`: `npm ci`, all 11
+  commands in `.factory/claims.json`, `npm test -- --workers=1` (26/26), and
+  `npm run build` passed; `dist/` was produced.
+
+## Required next steps
+
+1. Repair `F-1-18` as described in the review, then correct the four landing
+   copy findings `F-3-1` through `F-3-4`.
+2. Re-run the full review checklist, not a diff-only check.
+
+---
+
+# Previous polish 2 handoff
 
 ## Delivered
 
