@@ -1,45 +1,33 @@
-# Chore Receipt — polish 5 handoff
+# Chore Receipt — adversarial review 6 handoff
 
 ## Outcome
 
-Round 5 closes every cumulative finding. `frame-ancestors 'self'` is now a
-response-level CSP directive on normal and true-404 responses, with a browser
-regression that fetches both. The catalog description is now the verb-first,
-47-character sentence: “Record shared chores and see what is due next.”
+Review 6 is complete with verdict **FAIL**. One blocking finding remains:
+`F-6-1`. The exact `copies-no-sync` claim command failed in a clean clone
+because the live re-import result appears in two `role="status"` regions. A
+manual production flow confirmed the duplicate announcement.
 
-Repair commits are `9619421` (`fix: protect pages from framing`) and
-`a21aded` (`test: wait for demo seed before assertion`), both pushed to
-`main`. Final static deployment: `f856a2fc-5ccf-4064-9cad-d020af0cfc30` at
-<https://chore-receipt.sociobot.in>.
+No product code was changed. The review is in `.factory/review-6.md`.
 
 ## Verification
 
-- Fresh remote clone `/tmp/chore-receipt-polish5-clean.MoZZvO/repo` at
-  `a21aded769df7206406f1166ed40ee44b6e60b35`: `npm ci` passed with zero
-  vulnerabilities; every exact claim command in `.factory/claims.json` passed
-  individually (13/13); `npm test -- --workers=1` passed 33/33; and
-  `npm run build` produced `dist/index.html`.
-- The build is within the static budget: app JS 55.67 kB raw / 18,835 B gzip;
-  CSS 14.44 kB raw / 4,130 B gzip.
-- The full deployed suite passed with
-  `PLAYWRIGHT_BASE_URL=https://chore-receipt.sociobot.in npm test -- --workers=1`
-  (33/33): declared claims, offline-after-404, request privacy, demo reset,
-  mobile/200% layout, route focus/announcements, metadata, copy audit, and
-  seven-route Axe coverage.
-- Cold live checks: landing is 200; `/missing-csp-check` is 404; both return
-  the CSP including `frame-ancestors 'self'`. Landing and direct `?demo=1`
-  have `lang=en`, one h1, one main, correct titles, and no application console
-  errors. Screenshots: `evidence/polish-5-live/landing-390.png`,
-  `demo-query-390.png`, `landing-1440.png`, and `missing-390.png`.
+- Fresh mobile and desktop cold reads at 390×844 and 1440×900.
+- One-click demo, reset, real/demo IndexedDB isolation, and Start for real.
+- Live request log: same-origin GETs only during landing and demo entry.
+- All 13 claim commands run separately from
+  `/tmp/chore-receipt-review6-clean.SnAhGZ/repo`: 12 passed; only
+  `copies-no-sync` failed.
+- Clean full suite: 33/33 passed after the isolated failure.
+- Live full suite: 33/33 passed.
+- `npm run build`: passed; `dist/index.html` produced; app JS 55.67 kB raw /
+  19.12 kB gzip.
+- Factory URL verifier: no console errors; one h1; one main; `lang="en"`; alt
+  text and button labels present.
+- Live route and link crawl, metadata, designed 404, CSP, and all historical
+  findings checked.
 
-## Run locally
+## Remaining work
 
-```sh
-npm ci
-npm test -- --workers=1
-npm run build
-```
-
-## Known gaps
-
-None.
+Use one status region for the shared-copy result, update the claim test to
+assert the visible notice and exactly one announcement without an ambiguous
+text locator, then rerun every claim command and both full suites.
