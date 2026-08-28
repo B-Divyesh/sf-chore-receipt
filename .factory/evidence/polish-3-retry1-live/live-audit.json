@@ -1,0 +1,127 @@
+{
+  "routes": [
+    {
+      "path": "/",
+      "status": 200,
+      "title": "Chore Receipt — record shared chores",
+      "description": "Record recurring household chores, keep completion receipts, and see what is due next.",
+      "canonical": "https://chore-receipt.sociobot.in/",
+      "h1": 1,
+      "main": 1,
+      "header": 1,
+      "footer": 1
+    },
+    {
+      "path": "/demo",
+      "status": 200,
+      "title": "Demo — Chore Receipt",
+      "description": "Try a separate Chore Receipt board with four realistic household chores.",
+      "canonical": "https://chore-receipt.sociobot.in/demo",
+      "h1": 1,
+      "main": 1,
+      "header": 1,
+      "footer": 1
+    },
+    {
+      "path": "/log",
+      "status": 200,
+      "title": "Receipt log — Chore Receipt",
+      "description": "Review and export time-stamped household chore receipts.",
+      "canonical": "https://chore-receipt.sociobot.in/log",
+      "h1": 1,
+      "main": 1,
+      "header": 1,
+      "footer": 1
+    },
+    {
+      "path": "/settings",
+      "status": 200,
+      "title": "Household — Chore Receipt",
+      "description": "Name, back up, import, or copy your local household chore record.",
+      "canonical": "https://chore-receipt.sociobot.in/settings",
+      "h1": 1,
+      "main": 1,
+      "header": 1,
+      "footer": 1
+    },
+    {
+      "path": "/privacy",
+      "status": 200,
+      "title": "Privacy — Chore Receipt",
+      "description": "Learn what Chore Receipt saves on this device and what leaves it.",
+      "canonical": "https://chore-receipt.sociobot.in/privacy",
+      "h1": 1,
+      "main": 1,
+      "header": 1,
+      "footer": 1
+    },
+    {
+      "path": "/terms",
+      "status": 200,
+      "title": "Terms — Chore Receipt",
+      "description": "Read the terms for keeping a local household chore record.",
+      "canonical": "https://chore-receipt.sociobot.in/terms",
+      "h1": 1,
+      "main": 1,
+      "header": 1,
+      "footer": 1
+    }
+  ],
+  "demo": {
+    "banner": "Demo — sample data, nothing is saved.Reset demoStart for real",
+    "chores": 4,
+    "copyUnits": 11,
+    "title": "Demo — Chore Receipt",
+    "resetChores": 4,
+    "focusedHeading": "Every chore receipt"
+  },
+  "mobile": {
+    "household": {
+      "x": 173.140625,
+      "y": 62,
+      "width": 69.375,
+      "height": 44
+    },
+    "heading": "Household and data"
+  },
+  "privacy": {
+    "requestCount": 6,
+    "fragmentOnly": true,
+    "allSameOriginGet": true
+  },
+  "offline": {
+    "missingStatus": 404,
+    "cachedShellStatus": 200,
+    "heading": "Every chore receipt"
+  },
+  "axe": {
+    "/": {
+      "seriousOrCritical": []
+    },
+    "/demo": {
+      "seriousOrCritical": []
+    },
+    "/log": {
+      "seriousOrCritical": []
+    },
+    "/settings": {
+      "seriousOrCritical": []
+    },
+    "/privacy": {
+      "seriousOrCritical": []
+    },
+    "/terms": {
+      "seriousOrCritical": []
+    },
+    "/404.html": {
+      "seriousOrCritical": []
+    }
+  },
+  "notFound": {
+    "status": 404,
+    "title": "Missing receipt — Chore Receipt",
+    "h1": "This paper slip is missing.",
+    "header": true,
+    "footer": true
+  }
+}

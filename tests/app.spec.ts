@@ -167,6 +167,7 @@ test('@claim:local-only Household fields and packet never enter any request', as
   const watch = (page: Page) => page.on('request', (request) => traffic.push({ url: request.url(), method: request.method(), body: request.postData() || '' }));
   const source = await browser.newContext(); const sourcePage = await source.newPage(); watch(sourcePage);
   await sourcePage.goto('/demo');
+  const productOrigin = new URL(sourcePage.url()).origin;
   await sourcePage.getByRole('link', { name: 'Household' }).click();
   await sourcePage.getByRole('button', { name: 'Create household QR' }).click();
   const href = await sourcePage.getByRole('link', { name: 'Open share link' }).getAttribute('href');
@@ -177,7 +178,7 @@ test('@claim:local-only Household fields and packet never enter any request', as
   expect(traffic.length).toBeGreaterThan(0);
   for (const request of traffic) {
     expect(request.method).toBe('GET');
-    expect(new URL(request.url).origin).toBe('http://127.0.0.1:4173');
+    expect(new URL(request.url).origin).toBe(productOrigin);
     const sent = `${request.url}\n${request.body}`;
     for (const secret of [packet, encodeURIComponent(packet), 'Maple Street home', 'Water the plants']) expect(sent).not.toContain(secret);
   }
