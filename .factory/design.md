@@ -53,4 +53,5 @@ the landing copy and becomes an explanatory scene, never text. Prompt sheet:
 - Negative: no people, no text, no watermark, no logos, no brands, no UI
 
 Asset provenance: generated with the Factory Azure image model on 2026-08-28.
-The resulting art is original to Chore Receipt and is disclosed in the footer.
+Its provenance is recorded here; the product does not make an untestable
+visitor-facing originality claim.

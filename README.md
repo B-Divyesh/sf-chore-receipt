@@ -10,8 +10,8 @@ changes are deleted when you select **Start for real**.
 
 - Records a completion as a time-stamped receipt and calculates the next date.
 - Exports receipts as CSV and exports or imports a JSON backup.
-- Shares an opt-in household copy with a QR code. Its data stays in the URL
-  fragment and is not sent to the host.
+- Shares an opt-in household copy with a QR code. The copy stays after the #
+  in the link, which browsers do not send to this site.
 - Works offline after setup. It is free to use.
 
 ## Privacy
@@ -30,8 +30,8 @@ npm run build
 ```
 
 `npm run build` creates the static deploy output in `dist/`, with `index.html`
-at its root. Each public product claim is listed in `.factory/claims.json` and
-has an outcome-level Playwright regression test.
+at its root. Each public claim has a Playwright test that checks the promised
+result.
 
 ## Deploy
 
