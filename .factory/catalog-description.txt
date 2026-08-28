@@ -1,1 +1,1 @@
-Record shared chores and see each next due date.
+Record shared chores and see when each is due next.

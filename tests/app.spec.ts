@@ -413,36 +413,46 @@ test('landing headings name the product sections without slogans', async ({ page
 test('the committed copy audit matches every current landing copy unit and sentence', async ({ page }) => {
   await page.goto('/');
   const audited = readFileSync('.factory/copy-audit.md', 'utf8');
-  const copy = await page.evaluate(() => {
-    const selectors = [
-      '.skip', 'header .wordmark', 'header nav a',
-      '.hero-copy > .eyebrow', '.hero-copy > h1', '.hero-copy > .lede',
-      '.actions .button', '.action-note', '.facts > span', '.hero-copy > .text-link',
-      '.preview-intro > .section-kicker', '.preview-intro > h2', '.preview-intro > p:not(.section-kicker)', '.preview-intro > a',
-      '.preview-board-head .eyebrow', '.preview-board-head h3', '.preview-count',
-      '.preview-chores b', '.preview-chores p', '.preview-receipt b', '.preview-receipt-copy',
-      '.how > div > .section-kicker', '.how h2', '.how li > b', '.how li > span',
-      '.privacy-note h2', '.privacy-note p', '.privacy-note a',
-      'footer > p', 'footer a', 'footer div > span:not(.sr-only)'
-    ];
-    const text = (element: Element) => {
+  const rendered = await page.evaluate(() => {
+    const clean = (value: string) => value.replace(/\s+/g, ' ').trim();
+    const copyFor = (element: HTMLElement) => {
+      const label = element.getAttribute('aria-label');
+      if (label) return clean(label);
+      if (element instanceof HTMLImageElement) return clean(element.alt);
       const clone = element.cloneNode(true) as HTMLElement;
       clone.querySelectorAll('[aria-hidden="true"]').forEach((item) => item.remove());
-      return (clone.innerText || clone.textContent || '').replace(/\s+/g, ' ').trim();
+      return clean(clone.innerText || clone.textContent || '');
     };
-    return [...new Set(selectors.flatMap((selector) => [...document.querySelectorAll(selector)])
-      .map(text)
-      .flatMap((item) => item.split(/(?<=[.!?])\s+/))
-      .filter(Boolean))];
+    const units = [...document.querySelectorAll<HTMLElement>('[data-copy-audit]')]
+      .flatMap((element) => copyFor(element)
+        .split(/(?<=[.!?])\s+/)
+        .filter(Boolean)
+        .map((copy, index) => ({
+          location: `${element.dataset.copyAudit}${index ? `-${index + 1}` : ''}`,
+          copy,
+        })));
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const untracked: string[] = [];
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      const parent = node.parentElement;
+      const text = clean(node.textContent || '');
+      if (!parent || !text || parent.closest('script, style, [aria-hidden="true"], dialog:not([open])')) continue;
+      if (!parent.closest('[data-copy-audit]')) untracked.push(text);
+    }
+    return { units, untracked };
   });
   const rows = audited.split('\n')
-    .map((line) => line.match(/^\| (.+?) \| (\d+) \| pass \|$/i))
+    .map((line) => line.match(/^\| ([^|]+) \| (.+?) \| (\d+) \| pass \|$/i))
     .filter((match): match is RegExpMatchArray => Boolean(match));
-  const auditedCopy = rows.map((match) => match[1].replaceAll('\\|', '|'));
-  expect(auditedCopy.sort()).toEqual([...copy].sort());
+  const auditedUnits = rows.map((match) => ({
+    location: match[1],
+    copy: match[2].replaceAll('\\|', '|'),
+  }));
+  expect(rendered.untracked).toEqual([]);
+  expect(auditedUnits).toEqual(rendered.units);
   for (const match of rows) {
-    const words = match[1].replaceAll('\\|', '|').split(/\s+/).filter(Boolean).length;
-    expect(Number(match[2]), match[1]).toBe(words); expect(words, match[1]).toBeLessThanOrEqual(22);
+    const words = match[2].replaceAll('\\|', '|').split(/\s+/).filter(Boolean).length;
+    expect(Number(match[3]), match[2]).toBe(words); expect(words, match[2]).toBeLessThanOrEqual(22);
   }
   for (const banned of ['leverage', 'seamless', 'effortless', 'robust', 'powerful', 'intuitive', 'reimagine', 'supercharge', 'delightful', 'journey', 'ecosystem', 'AI-powered']) expect(audited.toLowerCase()).not.toContain(banned.toLowerCase());
 });
