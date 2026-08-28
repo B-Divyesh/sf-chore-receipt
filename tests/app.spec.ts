@@ -125,6 +125,7 @@ test('@claim:demo-discard Starting for real discards changed demo data and keeps
   expect(names).not.toContain('chore-receipt-demo-v1');
   expect((await databaseValue(page, 'chore-receipt-real-v1') as Backup).chores[0].title).toBe('Private real chore');
   await page.goto('/demo');
+  await expect.poll(() => databaseValue(page, 'chore-receipt-demo-v1')).not.toBeUndefined();
   expect((await databaseValue(page, 'chore-receipt-demo-v1') as Backup).receipts).toHaveLength(4);
 });
 
