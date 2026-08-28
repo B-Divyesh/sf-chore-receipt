@@ -299,7 +299,7 @@ async function importJoin() {
   }
 }
 function header() {
-  return `<a class="skip" href="#main">Skip to content</a><header><a class="wordmark" href="/" data-link><span aria-hidden="true">▰</span> Chore Receipt</a><nav aria-label="Main navigation"><a href="/log" data-link>Receipt log</a><a href="/settings" data-link>Household</a><a href="/privacy" data-link>Privacy</a></nav></header>`;
+  return `<header><a class="wordmark" href="/" data-link><span aria-hidden="true">▰</span> Chore Receipt</a><nav aria-label="Main navigation"><a href="/log" data-link>Receipt log</a><a href="/settings" data-link>Household</a><a href="/privacy" data-link>Privacy</a></nav></header>`;
 }
 function footer() {
   return `<footer><p>A local record for recurring chores.</p><div><a href="/privacy" data-link>Privacy</a><a href="/terms" data-link>Terms</a><a href="https://sociobot.in" rel="noopener">Built by Param Factory <span class="sr-only">(external)</span><span aria-hidden="true">↗</span></a><span>v1.2.0</span></div></footer>`;

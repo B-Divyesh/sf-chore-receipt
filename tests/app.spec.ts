@@ -70,6 +70,9 @@ test('@claim:demo-isolation One click opens a sampled board in its own database'
   await expect(page.locator('.chore-list > li')).toHaveCount(4);
   expect(await databaseValue(page, 'chore-receipt-real-v1')).toBeUndefined();
   expect((await databaseValue(page, 'chore-receipt-demo-v1') as Backup).household).toBe('Maple Street home');
+  await page.goto('/?demo=1');
+  await expect(page.getByLabel('Demo controls')).toContainText('sample data, nothing is saved');
+  await expect(page.getByRole('heading', { name: 'Shared chore board' })).toBeVisible();
 });
 
 test('@claim:demo-discard Starting for real discards changed demo data and keeps real data', async ({ page }) => {
@@ -345,7 +348,11 @@ test('invalid imported dates are rejected before they are saved', async ({ page 
 });
 
 test('the add dialog closes, explains blank names, and keyboard starts at the skip link', async ({ page }) => {
-  await page.goto('/'); await page.keyboard.press('Tab'); await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused();
+  await page.goto('/');
+  const skip = page.getByRole('link', { name: 'Skip to content' });
+  await page.keyboard.press('Tab');
+  await expect(skip).toBeFocused();
+  await expect(skip).toBeInViewport();
   await page.getByRole('button', { name: /Add your first chore/ }).click(); await page.getByRole('button', { name: 'Close add chore form' }).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();
   await page.getByRole('button', { name: /Add your first chore/ }).click(); await page.getByLabel('Chore name').fill('   '); await page.getByRole('button', { name: 'Add shared chore' }).click();
