@@ -412,6 +412,7 @@ test('landing headings name the product sections without slogans', async ({ page
 
 test('the committed copy audit matches every current landing copy unit and sentence', async ({ page }) => {
   await page.goto('/');
+  await expect(page.locator('[data-copy-audit="header-wordmark"]')).toBeVisible();
   const audited = readFileSync('.factory/copy-audit.md', 'utf8');
   const rendered = await page.evaluate(() => {
     const clean = (value: string) => value.replace(/\s+/g, ' ').trim();
