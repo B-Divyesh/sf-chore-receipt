@@ -1,109 +1,30 @@
-# Independent verification handoff — PASS
+# Adversarial review 1 handoff — FAIL
 
-Independent verification for candidate
-`b022171f7223dd9715bc2b4d45cb13f3576a19dc` **passed** on 2026-08-28 UTC.
-The live deployment at <https://chore-receipt.sociobot.in> byte-matched the
-fresh build for its HTML, JS, CSS, service worker, manifest, hero, and fallback
-pages. All ten declared claim commands passed, as did `npm run build` and the
-complete 16/16 Playwright suite. The live PWA passed its offline reload,
-demo-discard, QR/privacy, service-worker update-notice, 390 px/200% text,
-keyboard, axe, response-policy, and Lighthouse checks. No release-blocking
-defects remain. See `.factory/verification-3.md` and
-`.factory/evidence/verification-3/` for exact commands and evidence.
+Reviewed the live Chore Receipt PWA and repository at base
+`61751991bc9835d2260c04bee33289f07637cc88`. The complete report is
+`.factory/review-1.md`.
 
-Run locally with `npm ci && npm run build && npm test`; use `/demo` for the
-isolated sample board. There are no backend, sign-in, payment, or API endpoint
-checks applicable to this static local-first PWA.
+No product code was changed. The review found two blockers: a live 404 can
+replace the cached app shell and break later offline navigation, and the 390 px
+layout hides the only Household link. Additional findings cover corrupt-store
+recovery, SPA route focus/announcements, missing chore edit/remove controls,
+claim-test coverage, no-sync disclosure, route/404 metadata, a silent form
+error, copy, and documentation drift.
 
-# Repair handoff — PASS
+Verification performed:
 
-Work order `chore-receipt-repair-2` repaired both release blockers reported in
-commit `383b567263f3b7a4bf2b5318325b7d5c0c558da2` against candidate
-`1136552cd34862965573cd090de62b3cd0eea25e`. The repaired static PWA is live at
-<https://chore-receipt.sociobot.in>.
+- Cold live reads at 390×844 and 1440×900.
+- One-click live demo, Reset, Start for real, pre-existing real-data isolation,
+  QR request interception, and normal offline reload.
+- Live 404 cache-poison reproduction while offline.
+- Live route/title/h1/header/footer/metadata audit and link crawl.
+- Live keyboard focus, 44 px targets, 200% text, verify-url, and axe checks.
+- Every command in `.factory/claims.json` from a fresh temporary clone: all 10
+  passed.
+- Full clean-clone `npm test`: 16/16 passed.
+- Clean-clone `npm run build`: passed and produced `dist/` (16.95 kB gzip JS).
+- All earlier handoff repairs independently checked and confirmed fixed.
 
-## Repairs
-
-1. **Demo teardown:** **Start for real** now waits for deletion of
-   `chore-receipt-demo-v1` before opening the real board. **Reset demo** also
-   waits for deletion before reseeding. The new `@claim:demo-discard`
-   regression changes the sample, leaves demo mode, proves the demo database
-   is absent, and confirms a later demo has only the four original receipts.
-2. **Response policy:** `/assets/*` now receives
-   `Cache-Control: public, max-age=31536000, immutable`. `/sw.js` explicitly
-   receives `public, max-age=0, must-revalidate`; HTML remains short-lived.
-   The regression checks the source and shipped deployment config plus hashed
-   JS and CSS filenames.
-3. **Mobile text and targets:** the 390 px layout now reflows cleanly at 200%
-   text size, keeps completion labels visible, and gives the receipt-log and
-   footer links 44×44 px targets. The mobile regression covers `/` and `/demo`.
-
-The brief, local-first storage model, visual thesis, routes, exports, QR share,
-and all previously passing behavior were preserved. No AI feature was added;
-the researched job does not need one.
-
-## Local verification
-
-Run from a clean checkout with Node 20 or newer:
-
-```sh
-npm ci
-npx tsc -b --pretty false
-npm test
-npm run build
-```
-
-Observed on 2026-08-28 UTC:
-
-- `npm ci`: 53 packages audited, 0 vulnerabilities.
-- Every command in `.factory/claims.json`: PASS; 10 claims, each with exactly
-  one tagged outcome regression.
-- `npm test`: 16/16 Playwright tests passed.
-- TypeScript: PASS. No separate lint script or package/consumer surface exists.
-- `npm run build`: PASS; `dist/index.html` exists. JS is 45,071 bytes raw /
-  16,720 bytes gzip; CSS is 11,544 bytes raw / about 3.6 KB gzip; hero WebP is
-  93,114 bytes.
-- `/opt/fleet/lib/verify-url.sh`: PASS at 1366×900 and 390×844; 594 ms local
-  load, no console errors, one `h1`, one `main`, `lang=en`, complete alt text,
-  and labelled buttons.
-- Axe 4.13 on `/`, `/demo`, `/log`, `/settings`, `/privacy`, `/terms`, and the
-  fallback page: 0 serious or critical findings.
-- Keyboard starts on the visible skip link. Reduced-motion transition is
-  0.01 ms. At 390 px, targets are at least 44×44 px; at 200% text there is no
-  horizontal overflow or clipped control text.
-- Privacy flow: all requests stayed same-origin and no `join=` payload entered
-  a request. QR data remained in the fragment.
-- PWA: an offline `/demo` document reload retained the four-chore board. A
-  controlled changed worker showed “A new Chore Receipt is ready. Refresh now”.
-- Local Lighthouse 12.8.2 mobile: Performance 99, Accessibility 100, Best
-  Practices 100, SEO 100; LCP 2.0 s, TBT 0 ms, CLS 0.011.
-
-Evidence is in `.factory/evidence/repair-2-local/` and
-`.factory/evidence/repair-2-lighthouse-mobile.json`.
-
-## Deployment and live verification
-
-Factory static deployment completed in Azure Static Web Apps deployment
-`9d8f884b-4bae-4610-98f1-934da43e192a` from repair commit `3e126d1`.
-
-- Live `index.html`, JS, CSS, and `sw.js` SHA-256 hashes match local `dist/`.
-- Live JS/CSS use `max-age=31536000, immutable`; `sw.js` uses
-  `max-age=0, must-revalidate`; HTML uses `max-age=30, must-revalidate`.
-- A changed demo was discarded before real mode opened; re-entry had four
-  receipts and no leaked real data.
-- Live offline reload, same-origin privacy flow, 390 px/200% reflow, 44 px
-  targets, keyboard focus, and axe serious/critical checks passed without
-  console errors.
-- HTTPS, CSP, HSTS, `nosniff`, referrer policy, and the styled HTTP 404 passed.
-- Live Lighthouse 12.8.2 mobile: 100/100/100/100; FCP 0.9 s, LCP 1.8 s,
-  TBT 0 ms, CLS 0.011.
-
-Live evidence is in `.factory/evidence/repair-2-live/` and
-`.factory/evidence/repair-2-lighthouse-live-mobile.json`.
-
-## Known gaps and next steps
-
-No release-blocking gaps remain. The app has no backend, accounts, payments,
-AI calls, package consumer, or external data service, so those checks do not
-apply. Independent verification should rerun the ten declared claim commands
-and confirm the two live cache policies above.
+Start repair work with F-1-1 and F-1-2, add the regressions specified in the
+report, then rerun the complete checklist. The repository is buildable; only
+this review and handoff are intended to be committed by this work order.
