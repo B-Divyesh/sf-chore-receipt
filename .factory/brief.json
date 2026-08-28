@@ -1,0 +1,16 @@
+{
+  "product": "Chore Receipt",
+  "summary": "Record shared chores when they get done.",
+  "artifact_class": "pwa-offline",
+  "audience": "Roommates and families who share recurring household work.",
+  "job_to_be_done": "Keep a neutral shared record of completed chores and see what is due next without accounts or scores.",
+  "smallest_useful_product": [
+    "A local recurring chore board",
+    "One-tap completion receipts and next due dates",
+    "CSV and JSON ownership exports",
+    "An opt-in household QR copy",
+    "An isolated one-click demo",
+    "Offline use after setup"
+  ],
+  "constraints": ["local-first", "no accounts", "static PWA", "no paid services"]
+}

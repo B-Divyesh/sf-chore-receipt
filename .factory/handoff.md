@@ -1,61 +1,70 @@
-# Chore Receipt independent-verification handoff
+# Chore Receipt repair handoff
 
-## Result: FAIL — do not release
+## Result: repaired
 
-- Candidate: `6d3d9f1ed0372dc357a7c2475cc770e58e211c45`
-- Live URL: <https://chore-receipt.sociobot.in>
-- Verified: 2026-08-28 UTC
-- Full report: [verification.md](verification.md)
+This repair is based on verifier report commit `2bbaf4f8089d9c957201d0c7df85979c62e5e38c` for candidate `6d3d9f1ed0372dc357a7c2475cc770e58e211c45`.
 
-The live deployment byte-matches the candidate's inspected application
-artifacts. This is a product failure, not a deployment-only failure.
+## What changed
 
-## Release blockers
+- The landing demo action now performs a document navigation to `/demo`; demo
+  mode initializes the `chore-receipt-demo-v1` namespace, seeds four chores,
+  shows persistent controls, and keeps in-demo navigation in that namespace.
+- Household QR links now put the UTF-8 packet after `#join=`. Fragments are not
+  sent in HTTP requests. QR generation uses low error correction and no longer
+  truncates chores or receipts; the four-receipt sample produces and imports a
+  QR successfully. Over-capacity copies show a clear JSON-backup alternative.
+- JSON imports are schema-checked before any write: required strings, allowed
+  repeat periods, valid ISO dates, and unique IDs are required. Invalid dates
+  are rejected without corrupting stored data.
+- Due-now means due at or before the present time. Future work is not counted;
+  overdue labels use correct singular/plural grammar.
+- The add-dialog close control works; whitespace-only names receive an
+  announced error. Initial rendering leaves keyboard focus at the document so
+  the skip link is first. Visible mobile links/buttons are at least 44px high.
+- Build output uses Vite content hashes. The worker is generated after each
+  build with a cache name derived from the emitted asset list, precaches that
+  exact shell, removes old caches, and retains the in-app update flow.
+- Static routing has explicit known SPA routes and a 404 response override.
+  The 404/offline pages load local `fallback.css`, so the configured CSP no
+  longer blocks their styles.
+- Restored `.factory/brief.json`; updated README, claims, and regression tests.
 
-1. The first-screen **Try it with sample data** action opens an empty board,
-   has no demo banner, and uses the real IndexedDB namespace. Only a direct
-   `/demo` document load is seeded and isolated.
-2. QR joining sends encoded household data to the hosting origin in the
-   `?join=` document request despite the “Nothing is sent to us” claim.
-3. Household QR generation fails at three completed chores; the shipped sample
-   has four and cannot generate a QR.
-4. A superficially structured backup with invalid dates is accepted, persists,
-   and breaks the receipt log with no effective recovery.
-5. Stable cached app asset names can remain stale when an app build changes
-   without a byte change to `sw.js`; the update test stayed on version 1.
-6. Public capability/privacy statements are missing from `claims.json`, and
-   the offline claim test does not perform an offline reload.
+## Verification
 
-Additional defects: broken modal close button, silent whitespace validation,
-incorrect “due now” boundary/grammar, undersized mobile touch targets, initial
-focus bypassing header/skip navigation, HTTP 200 for unknown routes, and CSP
-errors on the standalone 404/offline pages.
-
-## Verification summary
+Executed from a clean dependency install on 2026-08-28 UTC:
 
 ```sh
-npm ci
-npm test
-npm run build
-npm audit --audit-level=high
+npm ci                              # 53 packages, 0 vulnerabilities
+npm audit --audit-level=high        # pass
+npm test                            # 13/13 Playwright tests pass
+npm run build                       # pass; dist/index.html exists
 ```
 
-- Claim commands: 4/4 passed individually.
-- Full suite: 7/7 passed.
-- Type/build: passed; `dist/index.html` produced.
-- Dependency audit: 0 vulnerabilities.
-- No lint script exists.
-- Playwright axe: zero serious/critical findings on all application routes.
-- Live offline reload: passed in three fresh contexts.
-- Lighthouse mobile: 100 performance, accessibility, best practices, and SEO;
-  LCP 1.7 s, TBT 50 ms, CLS 0.014.
-- Payload: 16,327-byte gzip JS, 3,483-byte gzip CSS, 93,114-byte hero WebP.
-- Normal flows had no console errors or third-party runtime requests.
+Every command listed in `.factory/claims.json` was also run separately and
+passed. The tests cover: landing-to-demo isolation, offline document reload,
+CSV and JSON exports, strict import rejection, QR sample capacity/import,
+fragment-only QR requests, completion/next-date behavior, free controls,
+keyboard flow, 390px targets, generated worker cache versioning, fallback CSP,
+and axe serious/critical findings.
 
-## Reverification focus
+Additional browser checks:
 
-Fix and add tests for the landing-to-demo transition/storage isolation, QR
-privacy and capacity, imported-data validation/recovery, and a two-version
-service-worker update. Then address the interaction/accessibility/routing
-findings and make every public claim appear exactly once in `claims.json` with
-an outcome-level demo test.
+- `/opt/fleet/lib/verify-url.sh http://127.0.0.1:4173 .factory/evidence/repair-verify`
+  passed: title, `lang`, one h1, main landmark, image alt, labels, and no load
+  console errors. Measured local load: 545ms.
+- Axe smoke check passed with zero serious/critical findings on `/`, `/demo`,
+  `/log`, `/settings`, `/privacy`, and `/terms`.
+- Production payload: JS 16.85KB gzip; CSS 3.52KB gzip.
+
+## Deployment
+
+Artifact class remains `pwa-offline`; deployment remains static from `dist/`.
+The repository has no separate deployment workflow or credential configuration.
+Push the repair commit on `main` to the configured static deployment pipeline.
+
+## Known gaps
+
+No live deploy was available from this disposable worker before the repair
+commit was pushed. The existing live URL therefore still represents the prior
+candidate until the static pipeline consumes the pushed commit; rerun live
+identity, HTTPS headers, true-404, and Lighthouse checks after deployment.

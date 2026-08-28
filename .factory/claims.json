@@ -1,30 +1,11 @@
 [
-  {
-    "id": "offline-reload",
-    "claim": "Works offline after setup",
-    "where": "landing facts, README",
-    "test": "npm test -- --grep @claim:offline-reload",
-    "sandbox": "Fresh browser context loads /demo, goes offline, then marks a shared chore done."
-  },
-  {
-    "id": "csv-export",
-    "claim": "Export receipts as CSV",
-    "where": "Receipt log and README",
-    "test": "npm test -- --grep @claim:csv-export",
-    "sandbox": "Demo receipt log downloads a CSV whose header is chore,completed_at,due_at."
-  },
-  {
-    "id": "local-only",
-    "claim": "Nothing is sent to us",
-    "where": "Privacy page and README",
-    "test": "npm test -- --grep @claim:local-only",
-    "sandbox": "Demo completion flow records all requests and accepts only the product's own origin."
-  },
-  {
-    "id": "free",
-    "claim": "Free to use",
-    "where": "landing facts",
-    "test": "npm test -- --grep @claim:free",
-    "sandbox": "Fresh landing page contains no checkout, payment, or purchase control."
-  }
+  {"id":"demo-isolation","claim":"Try it with sample data opens a separate sampled board.","where":"landing action, demo banner, README","test":"npm test -- --grep @claim:demo-isolation","sandbox":"Fresh landing page; one click opens /demo with four sample chores and only the demo store is populated."},
+  {"id":"stored-device","claim":"Stored on this device.","where":"landing facts, Privacy, README","test":"npm test -- --grep @claim:stored-device","sandbox":"Landing-to-demo flow asserts that the populated sample is in the demo IndexedDB namespace, not the real one."},
+  {"id":"offline-reload","claim":"Works offline after setup.","where":"landing facts, README","test":"npm test -- --grep @claim:offline-reload","sandbox":"Fresh browser context loads /demo, waits for the worker, goes offline, and reloads the document."},
+  {"id":"csv-export","claim":"Export receipts as CSV.","where":"Receipt log, README","test":"npm test -- --grep @claim:csv-export","sandbox":"Demo receipt log download has the header and four receipt rows."},
+  {"id":"json-backup","claim":"Export and import a JSON backup.","where":"Household, README","test":"npm test -- --grep @claim:json-backup","sandbox":"Demo export is supplied to the import control and reports a completed import."},
+  {"id":"local-only","claim":"Household data is not sent to the host.","where":"Privacy, Household, README","test":"npm test -- --grep @claim:local-only","sandbox":"A QR share is opened in a fresh browser context and every request is checked for a household payload."},
+  {"id":"qr-share","claim":"Share the current household with an opt-in QR code.","where":"Household, README","test":"npm test -- --grep @claim:qr-share","sandbox":"The four-receipt sample produces a QR and its fragment link imports into a fresh context."},
+  {"id":"receipt-next-date","claim":"Marking a chore done records a receipt and sets its next date.","where":"board, README","test":"npm test -- --grep @claim:receipt-next-date","sandbox":"Demo marks Water the plants done and asserts its receipt notice and five-day due date."},
+  {"id":"free","claim":"Free to use.","where":"landing facts, Terms","test":"npm test -- --grep @claim:free","sandbox":"Fresh landing page has no payment, checkout, or purchase control."}
 ]

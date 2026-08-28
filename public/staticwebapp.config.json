@@ -1,5 +1,11 @@
 {
-  "navigationFallback": { "rewrite": "/index.html", "exclude": ["/assets/*", "/icons/*", "*.webp", "*.xml", "*.txt", "*.webmanifest"] },
+  "routes": [
+    { "route": "/demo", "rewrite": "/index.html" },
+    { "route": "/log", "rewrite": "/index.html" },
+    { "route": "/settings", "rewrite": "/index.html" },
+    { "route": "/privacy", "rewrite": "/index.html" },
+    { "route": "/terms", "rewrite": "/index.html" }
+  ],
   "responseOverrides": { "404": { "rewrite": "/404.html", "statusCode": 404 } },
   "globalHeaders": {
     "X-Content-Type-Options": "nosniff",
