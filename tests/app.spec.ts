@@ -145,11 +145,13 @@ test('the dialog closes, explains blank names, and keyboard starts at the skip l
 
 test('mobile controls meet the 44px target', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
-  const undersized = await page.locator('a,button,input,select').evaluateAll((items) => items
-    .filter((item) => { const box = item.getBoundingClientRect(); return box.width > 0 && box.height > 0 && box.height < 44; })
-    .map((item) => (item as HTMLElement).innerText || item.getAttribute('aria-label')));
-  expect(undersized).toEqual([]);
+  for (const route of ['/', '/demo']) {
+    await page.goto(route);
+    const undersized = await page.locator('a,button,input,select').evaluateAll((items) => items
+      .filter((item) => { const box = item.getBoundingClientRect(); return box.width > 0 && box.height > 0 && (box.width < 44 || box.height < 44); })
+      .map((item) => (item as HTMLElement).innerText || item.getAttribute('aria-label')));
+    expect(undersized, route).toEqual([]);
+  }
 });
 
 test('the 390px demo keeps all controls visible at 200% text size', async ({ page }) => {
