@@ -6,6 +6,7 @@ type Backup = {
   household: string;
   chores: Array<{ id: string; title: string; repeatDays: number; completedAt?: string; createdAt: string; updatedAt: string }>;
   receipts: Array<{ id: string; choreId: string; title: string; completedAt: string; dueAt: string; updatedAt: string }>;
+  removedChores: Array<{ id: string; removedAt: string }>;
 };
 
 async function databaseValue(page: Page, name: string) {
@@ -61,7 +62,7 @@ async function freshPage(context: BrowserContext, path = '/') {
   return page;
 }
 
-test('@claim:demo-isolation One click opens a sampled board in its own database', async ({ page }) => {
+test('@claim:demo-isolation One click opens an editable sample board in its own database', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('link', { name: 'Try it with sample data' }).click();
   await expect(page).toHaveURL(/\/demo$/);
@@ -70,9 +71,44 @@ test('@claim:demo-isolation One click opens a sampled board in its own database'
   await expect(page.locator('.chore-list > li')).toHaveCount(4);
   expect(await databaseValue(page, 'chore-receipt-real-v1')).toBeUndefined();
   expect((await databaseValue(page, 'chore-receipt-demo-v1') as Backup).household).toBe('Maple Street home');
+  const chore = page.locator('.chore').filter({ hasText: 'Water the plants' });
+  await chore.getByRole('button', { name: 'Edit chore' }).click();
+  await page.getByRole('dialog', { name: 'Edit chore' }).getByLabel('Chore name').fill('Water the balcony plants');
+  await page.getByRole('dialog', { name: 'Edit chore' }).getByRole('button', { name: 'Save chore' }).click();
+  await expect(page.getByRole('heading', { name: 'Water the balcony plants' })).toBeVisible();
+  expect((await databaseValue(page, 'chore-receipt-demo-v1') as Backup).chores.find((item) => item.id === 'plants')?.title).toBe('Water the balcony plants');
+  expect(await databaseValue(page, 'chore-receipt-real-v1')).toBeUndefined();
   await page.goto('/?demo=1');
   await expect(page.getByLabel('Demo controls')).toContainText('sample data, nothing is saved');
   await expect(page.getByRole('heading', { name: 'Shared chore board' })).toBeVisible();
+});
+
+test('@claim:demo-reset Reset restores the exact sample, clears stale results, and keeps real data', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /Add your first chore/ }).click();
+  await page.getByLabel('Chore name').fill('Private real chore');
+  await page.getByRole('button', { name: 'Add shared chore' }).click();
+  const realBefore = await databaseValue(page, 'chore-receipt-real-v1');
+
+  await page.goto('/demo');
+  const seed = await databaseValue(page, 'chore-receipt-demo-v1');
+  const chore = page.locator('.chore').filter({ hasText: 'Water the plants' });
+  await chore.getByRole('button', { name: 'Edit chore' }).click();
+  await page.getByRole('dialog', { name: 'Edit chore' }).getByLabel('Chore name').fill('Water every plant');
+  await page.getByRole('dialog', { name: 'Edit chore' }).getByRole('button', { name: 'Save chore' }).click();
+  await page.getByRole('button', { name: /Mark Water every plant done/ }).click();
+  await expect(page.getByRole('button', { name: 'Undo receipt' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Reset demo' }).click();
+  await expect(page.getByRole('button', { name: 'Reset demo' })).toBeFocused();
+  await expect(page.locator('.announcer')).toHaveText('Demo reset to four sample chores and four receipts.');
+  await expect(page.locator('.chore-list > li')).toHaveCount(4);
+  await expect(page.getByRole('heading', { name: 'Water the plants' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Water every plant' })).toHaveCount(0);
+  await expect(page.getByText('Receipt added for')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Undo receipt' })).toHaveCount(0);
+  expect(await databaseValue(page, 'chore-receipt-demo-v1')).toEqual(seed);
+  expect(await databaseValue(page, 'chore-receipt-real-v1')).toEqual(realBefore);
 });
 
 test('@claim:demo-discard Starting for real discards changed demo data and keeps real data', async ({ page }) => {
@@ -90,6 +126,22 @@ test('@claim:demo-discard Starting for real discards changed demo data and keeps
   expect((await databaseValue(page, 'chore-receipt-real-v1') as Backup).chores[0].title).toBe('Private real chore');
   await page.goto('/demo');
   expect((await databaseValue(page, 'chore-receipt-demo-v1') as Backup).receipts).toHaveLength(4);
+});
+
+test('@claim:no-scoring Completed chores create records without people, points, ranks, or leaderboards', async ({ page }) => {
+  await page.goto('/demo');
+  await page.getByRole('button', { name: /Mark Water the plants done/ }).click();
+  const boardText = (await page.locator('main').innerText()).toLowerCase();
+  expect(boardText).not.toMatch(/\b(person|people|assignee|points?|score|rank|leaderboard)\b/);
+  const { buffer } = await downloadBuffer(page, 'Export JSON backup');
+  const exported = JSON.parse(buffer.toString()) as Backup;
+  const keys: string[] = [];
+  const collectKeys = (value: unknown) => {
+    if (!value || typeof value !== 'object') return;
+    for (const [key, child] of Object.entries(value)) { keys.push(key.toLowerCase()); collectKeys(child); }
+  };
+  collectKeys(exported);
+  expect(keys.filter((key) => ['person', 'people', 'assignee', 'point', 'points', 'score', 'rank', 'leaderboard'].includes(key))).toEqual([]);
 });
 
 test('@claim:stored-device Real household data survives reload in the real namespace', async ({ page }) => {
@@ -141,8 +193,18 @@ test('@claim:csv-export CSV export contains one row for every demo receipt', asy
 test('@claim:json-backup JSON import restores household, chores, and receipts into a fresh store', async ({ browser }) => {
   const source = await browser.newContext();
   const sourcePage = await freshPage(source, '/demo');
+  const bathroom = sourcePage.locator('.chore').filter({ hasText: 'Clean the bathroom' });
+  await bathroom.getByRole('button', { name: 'Edit chore' }).click();
+  await sourcePage.getByRole('dialog', { name: 'Edit chore' }).getByLabel('Chore name').fill('Clean the washroom');
+  await sourcePage.getByRole('dialog', { name: 'Edit chore' }).getByRole('button', { name: 'Save chore' }).click();
+  const plants = sourcePage.locator('.chore').filter({ hasText: 'Water the plants' });
+  await plants.getByRole('button', { name: 'Remove chore' }).click();
+  await sourcePage.getByRole('dialog', { name: 'Remove this chore?' }).getByRole('button', { name: 'Remove chore' }).click();
   const { buffer } = await downloadBuffer(sourcePage, 'Export JSON backup');
   const exported = JSON.parse(buffer.toString()) as Backup;
+  expect(exported.chores.map((item) => item.title)).toContain('Clean the washroom');
+  expect(exported.chores.map((item) => item.id)).not.toContain('plants');
+  expect(exported.removedChores).toContainEqual(expect.objectContaining({ id: 'plants' }));
   await source.close();
 
   const target = await browser.newContext();
@@ -150,13 +212,14 @@ test('@claim:json-backup JSON import restores household, chores, and receipts in
   expect(await databaseValue(targetPage, 'chore-receipt-real-v1')).toBeUndefined();
   await expect(targetPage.getByRole('button', { name: 'Export JSON backup' })).toBeVisible();
   await targetPage.getByLabel('Choose JSON file').setInputFiles({ name: 'backup.json', mimeType: 'application/json', buffer });
-  await expect(targetPage.getByText('Backup imported. Newer records were kept.')).toBeVisible();
+  await expect(targetPage.getByText('Backup imported. Chore changes and receipt history were kept.')).toBeVisible();
   await targetPage.reload();
   await expect(targetPage.getByLabel('Household name')).toHaveValue('Maple Street home');
   const restored = await databaseValue(targetPage, 'chore-receipt-real-v1') as Backup;
   expect(restored.household).toBe(exported.household);
   expect(restored.chores).toEqual(exported.chores);
   expect(restored.receipts).toEqual(exported.receipts);
+  expect(restored.removedChores).toEqual(exported.removedChores);
   await targetPage.getByRole('link', { name: 'Receipt log' }).click();
   await expect(targetPage.getByText(/Done .* · next/)).toHaveCount(4);
   await target.close();
@@ -174,7 +237,7 @@ test('@claim:local-only Household fields and packet never enter any request', as
   const packet = href!.split('#join=')[1];
   const recipient = await browser.newContext(); const recipientPage = await recipient.newPage(); watch(recipientPage);
   await recipientPage.goto(href!);
-  await expect(recipientPage.getByText('Household copy added. Newer receipts were kept.')).toBeVisible();
+  await expect(recipientPage.getByText('Household copy updated. Chore changes and receipt history were imported.')).toBeVisible();
   expect(traffic.length).toBeGreaterThan(0);
   for (const request of traffic) {
     expect(request.method).toBe('GET');
@@ -192,33 +255,54 @@ test('@claim:qr-share The sample QR imports all four chores and receipts', async
   await expect(page.getByRole('img', { name: 'QR code that imports a copy of this household record.' })).toBeVisible();
   const href = await page.getByRole('link', { name: 'Open share link' }).getAttribute('href');
   const target = await browser.newContext(); const targetPage = await freshPage(target, href!);
-  await expect(targetPage.getByText('Household copy added. Newer receipts were kept.')).toBeVisible();
+  await expect(targetPage.getByText('Household copy updated. Chore changes and receipt history were imported.')).toBeVisible();
   await expect(targetPage.locator('.chore-list > li')).toHaveCount(4);
   expect((await databaseValue(targetPage, 'chore-receipt-real-v1') as Backup).receipts).toHaveLength(4);
   await source.close(); await target.close();
 });
 
-test('@claim:copies-no-sync Household copies stay separate until someone imports again', async ({ browser }) => {
+test('@claim:copies-no-sync Re-import applies edits and removals but keeps destination-only data', async ({ browser }) => {
   const source = await browser.newContext(); const sourcePage = await freshPage(source, '/demo');
   await sourcePage.getByRole('link', { name: 'Household' }).click();
   await sourcePage.getByRole('button', { name: 'Create household QR' }).click();
   const href = await sourcePage.getByRole('link', { name: 'Open share link' }).getAttribute('href');
   const recipient = await browser.newContext(); const recipientPage = await freshPage(recipient, href!);
-  await expect(recipientPage.getByText('Household copy added. Newer receipts were kept.')).toBeVisible();
+  await expect(recipientPage.getByText('Household copy updated. Chore changes and receipt history were imported.')).toBeVisible();
+
+  await recipientPage.getByRole('button', { name: 'Add a chore' }).click();
+  await recipientPage.getByRole('dialog', { name: 'Add a shared chore' }).getByLabel('Chore name').fill('Polish the hallway mirror');
+  await recipientPage.getByRole('dialog', { name: 'Add a shared chore' }).getByRole('button', { name: 'Add shared chore' }).click();
+  await expect(recipientPage.getByRole('heading', { name: 'Polish the hallway mirror' })).toBeVisible();
+
   await sourcePage.getByRole('link', { name: 'Chore Receipt' }).click();
-  await sourcePage.getByRole('button', { name: 'Add a chore' }).click();
-  const add = sourcePage.getByRole('dialog', { name: 'Add a shared chore' });
-  await add.getByLabel('Chore name').fill('Wipe the fridge shelf');
-  await add.getByRole('button', { name: 'Add shared chore' }).click();
-  await expect(sourcePage.getByRole('heading', { name: 'Wipe the fridge shelf' })).toBeVisible();
+  const bins = sourcePage.locator('.chore').filter({ hasText: 'Take out the bins' });
+  await bins.getByRole('button', { name: 'Edit chore' }).click();
+  await sourcePage.getByRole('dialog', { name: 'Edit chore' }).getByLabel('Chore name').fill('Take recycling out');
+  await sourcePage.getByRole('dialog', { name: 'Edit chore' }).getByRole('button', { name: 'Save chore' }).click();
+  const plants = sourcePage.locator('.chore').filter({ hasText: 'Water the plants' });
+  await plants.getByRole('button', { name: 'Remove chore' }).click();
+  await sourcePage.getByRole('dialog', { name: 'Remove this chore?' }).getByRole('button', { name: 'Remove chore' }).click();
+
   await recipientPage.reload();
-  await expect(recipientPage.getByRole('heading', { name: 'Wipe the fridge shelf' })).toHaveCount(0);
+  await expect(recipientPage.getByRole('heading', { name: 'Take out the bins' })).toBeVisible();
+  await expect(recipientPage.getByRole('heading', { name: 'Take recycling out' })).toHaveCount(0);
+  await expect(recipientPage.getByRole('heading', { name: 'Water the plants' })).toBeVisible();
+
   await sourcePage.getByRole('link', { name: 'Household' }).click();
   await sourcePage.getByRole('button', { name: 'Create household QR' }).click();
   const updatedHref = await sourcePage.getByRole('link', { name: 'Open share link' }).getAttribute('href');
   await recipientPage.goto('about:blank');
   await recipientPage.goto(updatedHref!);
-  await expect(recipientPage.getByRole('heading', { name: 'Wipe the fridge shelf' })).toBeVisible();
+  await expect(recipientPage.getByText('Household copy updated. Chore changes and receipt history were imported.')).toBeVisible();
+  await expect(recipientPage.getByRole('heading', { name: 'Take recycling out' })).toBeVisible();
+  await expect(recipientPage.getByRole('heading', { name: 'Take out the bins' })).toHaveCount(0);
+  await expect(recipientPage.getByRole('heading', { name: 'Water the plants' })).toHaveCount(0);
+  await expect(recipientPage.getByRole('heading', { name: 'Polish the hallway mirror' })).toBeVisible();
+  const imported = await databaseValue(recipientPage, 'chore-receipt-real-v1') as Backup;
+  expect(imported.chores.map((item) => item.id)).toContain('bins');
+  expect(imported.chores.map((item) => item.id)).not.toContain('plants');
+  expect(imported.removedChores).toContainEqual(expect.objectContaining({ id: 'plants' }));
+  expect(imported.receipts).toHaveLength(4);
   await source.close(); await recipient.close();
 });
 
@@ -242,7 +326,7 @@ test('@claim:free No purchase or payment path exists', async ({ page }) => {
 });
 
 test('corrupt data can be restored by import or removed after confirmation', async ({ browser }) => {
-  const valid: Backup = { household: 'Recovered home', chores: [{ id: 'saved', title: 'Clean the porch', repeatDays: 7, createdAt: '2026-08-01T10:00:00.000Z', updatedAt: '2026-08-01T10:00:00.000Z' }], receipts: [] };
+  const valid: Backup = { household: 'Recovered home', chores: [{ id: 'saved', title: 'Clean the porch', repeatDays: 7, createdAt: '2026-08-01T10:00:00.000Z', updatedAt: '2026-08-01T10:00:00.000Z' }], receipts: [], removedChores: [] };
   const importContext = await browser.newContext(); const importPage = await freshPage(importContext);
   await putDatabaseValue(importPage, 'chore-receipt-real-v1', { broken: true }); await importPage.reload();
   await expect(importPage.getByRole('heading', { name: 'Your chore record could not open' })).toBeVisible();
@@ -359,8 +443,15 @@ test('the designed 404 keeps navigation, legal links, metadata, and accessible s
   const response = await request.get('/404.html'); const html = await response.text();
   for (const text of ['Skip to content', 'Household', 'Privacy', 'Terms', 'twitter:image', 'canonical', 'favicon.svg']) expect(html).toContain(text);
   await page.goto('/404.html');
-  await expect(page.getByRole('heading', { level: 1, name: 'This paper slip is missing.' })).toBeVisible();
+  await expect(page).toHaveTitle('Page not found — Chore Receipt');
+  await expect(page.getByRole('heading', { level: 1, name: 'This page is missing.' })).toBeVisible();
+  await expect(page.getByText('Misfiled receipt')).toHaveCount(0);
   await expect(page.locator('main')).toHaveCount(1); await expect(page.locator('header')).toHaveCount(1); await expect(page.locator('footer')).toHaveCount(1);
+  await page.goto('/a-page-that-does-not-exist');
+  await expect(page).toHaveTitle('Page not found — Chore Receipt');
+  await expect(page.getByRole('heading', { level: 1, name: 'This page is missing.' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Privacy' }).last()).toHaveAttribute('href', '/privacy');
+  await expect(page.getByRole('link', { name: 'Terms' })).toHaveAttribute('href', '/terms');
 });
 
 test('invalid imported dates are rejected before they are saved', async ({ page }) => {
@@ -457,6 +548,24 @@ test('the committed copy audit matches every current landing copy unit and sente
     expect(Number(match[3]), match[2]).toBe(words); expect(words, match[2]).toBeLessThanOrEqual(22);
   }
   for (const banned of ['leverage', 'seamless', 'effortless', 'robust', 'powerful', 'intuitive', 'reimagine', 'supercharge', 'delightful', 'journey', 'ecosystem', 'AI-powered']) expect(audited.toLowerCase()).not.toContain(banned.toLowerCase());
+});
+
+test('every declared claim has exactly one tagged outcome test and every landing claim is registered', async ({ page }) => {
+  const claims = JSON.parse(readFileSync('.factory/claims.json', 'utf8')) as Array<{ id: string; test: string }>;
+  const ids = claims.map((claim) => claim.id);
+  expect(new Set(ids).size).toBe(ids.length);
+  const source = readFileSync('tests/app.spec.ts', 'utf8');
+  for (const claim of claims) {
+    expect(claim.test).toBe(`npm test -- --grep @claim:${claim.id}`);
+    expect(source.match(new RegExp(`@claim:${claim.id}(?![a-z0-9-])`, 'g')) || [], claim.id).toHaveLength(1);
+  }
+  await page.goto('/');
+  const landingClaims = await page.locator('[data-claim]').evaluateAll((items) => [...new Set(items.flatMap((item) => (item.getAttribute('data-claim') || '').split(/\s+/)).filter(Boolean))]);
+  for (const id of landingClaims) expect(ids).toContain(id);
+  expect(ids).toEqual([
+    'demo-isolation', 'demo-reset', 'demo-discard', 'no-scoring', 'stored-device', 'offline-reload',
+    'csv-export', 'json-backup', 'local-only', 'qr-share', 'copies-no-sync', 'receipt-next-date', 'free'
+  ]);
 });
 
 test('all product routes and the 404 have no serious or critical axe findings', async ({ page }) => {

@@ -65,7 +65,7 @@ terms, and has no banned marketing word.
 | footer-privacy | Privacy | 1 | pass |
 | footer-terms | Terms | 1 | pass |
 | footer-factory | Built by Param Factory (external) | 5 | pass |
-| footer-version | v1.2.0 | 1 | pass |
+| footer-version | v1.3.0 | 1 | pass |
 
 ## Terminology
 

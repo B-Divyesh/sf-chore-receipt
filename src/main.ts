@@ -17,7 +17,13 @@ type Receipt = {
   dueAt: string;
   updatedAt: string;
 };
-type Store = { chores: Chore[]; receipts: Receipt[]; household: string };
+type RemovedChore = { id: string; removedAt: string };
+type Store = {
+  chores: Chore[];
+  receipts: Receipt[];
+  removedChores: RemovedChore[];
+  household: string;
+};
 
 const root = document.querySelector<HTMLDivElement>("#app")!;
 const day = 86_400_000;
@@ -30,7 +36,12 @@ const dbName = `chore-receipt-${isDemo ? "demo" : "real"}-v1`;
 const demoDbName = "chore-receipt-demo-v1";
 const now = () => new Date().toISOString();
 const id = () => crypto.randomUUID();
-let state: Store = { chores: [], receipts: [], household: "Our home" };
+let state: Store = {
+  chores: [],
+  receipts: [],
+  removedChores: [],
+  household: "Our home",
+};
 let lastReceipt: Receipt | undefined;
 let recoveryMode = false;
 
@@ -77,8 +88,10 @@ function deleteDatabase(name: string) {
   });
 }
 function sample(): Store {
-  const at = (daysAgo: number, hour = 9) =>
-    new Date(Date.now() - daysAgo * day - hour * 3_600_000).toISOString();
+  const anchor = new Date();
+  anchor.setUTCHours(12, 0, 0, 0);
+  const at = (daysAgo: number) =>
+    new Date(anchor.getTime() - daysAgo * day).toISOString();
   const chores: Chore[] = [
     {
       id: "bath",
@@ -123,7 +136,12 @@ function sample(): Store {
     ).toISOString(),
     updatedAt: chore.updatedAt,
   }));
-  return { household: "Maple Street home", chores, receipts };
+  return {
+    household: "Maple Street home",
+    chores,
+    receipts,
+    removedChores: [],
+  };
 }
 function validDate(value: unknown): value is string {
   return typeof value === "string" && !Number.isNaN(Date.parse(value));
@@ -160,6 +178,15 @@ function validReceipt(value: unknown): value is Receipt {
     validDate(item.updatedAt)
   );
 }
+function validRemovedChore(value: unknown): value is RemovedChore {
+  if (!value || typeof value !== "object") return false;
+  const item = value as Partial<RemovedChore>;
+  return (
+    typeof item.id === "string" &&
+    item.id.length > 0 &&
+    validDate(item.removedAt)
+  );
+}
 function validateStore(value: unknown): Store {
   if (!value || typeof value !== "object") throw new Error("not an object");
   const incoming = value as Partial<Store>;
@@ -170,20 +197,26 @@ function validateStore(value: unknown): Store {
     !Array.isArray(incoming.chores) ||
     !Array.isArray(incoming.receipts) ||
     !incoming.chores.every(validChore) ||
-    !incoming.receipts.every(validReceipt)
+    !incoming.receipts.every(validReceipt) ||
+    (incoming.removedChores !== undefined &&
+      (!Array.isArray(incoming.removedChores) ||
+        !incoming.removedChores.every(validRemovedChore)))
   )
     throw new Error("invalid record");
   if (
     new Set(incoming.chores.map((item) => item.id)).size !==
       incoming.chores.length ||
     new Set(incoming.receipts.map((item) => item.id)).size !==
-      incoming.receipts.length
+      incoming.receipts.length ||
+    new Set((incoming.removedChores || []).map((item) => item.id)).size !==
+      (incoming.removedChores || []).length
   )
     throw new Error("duplicate record");
   return {
     household: incoming.household.trim(),
     chores: incoming.chores,
     receipts: incoming.receipts,
+    removedChores: incoming.removedChores || [],
   };
 }
 function dueDate(chore: Chore) {
@@ -302,7 +335,7 @@ function header() {
   return `<header><a class="wordmark" href="/" data-link data-copy-audit="header-wordmark"><span aria-hidden="true">▰</span> Chore Receipt</a><nav aria-label="Main navigation" data-copy-audit="header-navigation"><a href="/log" data-link data-copy-audit="header-receipt-log">Receipt log</a><a href="/settings" data-link data-copy-audit="header-household">Household</a><a href="/privacy" data-link data-copy-audit="header-privacy">Privacy</a></nav></header>`;
 }
 function footer() {
-  return `<footer><p data-copy-audit="footer-description">A local record for recurring chores.</p><div><a href="/privacy" data-link data-copy-audit="footer-privacy">Privacy</a><a href="/terms" data-link data-copy-audit="footer-terms">Terms</a><a href="https://sociobot.in" rel="noopener" data-copy-audit="footer-factory">Built by Param Factory <span class="sr-only">(external)</span><span aria-hidden="true">↗</span></a><span data-copy-audit="footer-version">v1.2.0</span></div></footer>`;
+  return `<footer><p data-copy-audit="footer-description">A local record for recurring chores.</p><div><a href="/privacy" data-link data-copy-audit="footer-privacy">Privacy</a><a href="/terms" data-link data-copy-audit="footer-terms">Terms</a><a href="https://sociobot.in" rel="noopener" data-copy-audit="footer-factory">Built by Param Factory <span class="sr-only">(external)</span><span aria-hidden="true">↗</span></a><span data-copy-audit="footer-version">v1.3.0</span></div></footer>`;
 }
 function demoBanner() {
   return isDemo
@@ -315,11 +348,11 @@ function appShell(content: string) {
 function landing() {
   const hasData = state.chores.length > 0;
   return appShell(
-    `<section class="hero"><div class="hero-copy"><p class="eyebrow" data-copy-audit="hero-scope">A household record, not a scorecard</p><h1 tabindex="-1" data-copy-audit="hero-heading">Record chores when they get done</h1><p class="lede" data-copy-audit="hero-audience">For roommates and families who share the work and need to know what is due next.</p><div class="actions"><a class="button primary" href="/demo" data-copy-audit="hero-demo-action">Try it with sample data</a><span class="action-note" data-copy-audit="hero-demo-note">See a working shared chore board.</span></div><div class="facts"><span data-copy-audit="hero-offline-fact">Works offline after setup</span><span data-copy-audit="hero-storage-fact">Stored on this device</span><span data-copy-audit="hero-price-fact">Free to use</span></div>${hasData ? `<a class="text-link" href="/log" data-link data-copy-audit="hero-real-action">Open your chore board →</a>` : `<button class="text-link" data-action="open-add" data-copy-audit="hero-real-action">Add your first chore →</button>`}</div><figure class="hero-art"><img src="/kitchen-diorama.webp" width="1200" height="800" fetchpriority="high" decoding="async" data-copy-audit="hero-art-description" alt="A paper-cut kitchen with a sink, cleaning cloth, plant, and blank receipt." /></figure></section>${samplePreview()}<section class="how"><div><p class="section-kicker" data-copy-audit="how-kicker">How it works</p><h2 data-copy-audit="how-heading">How chore receipts set the next due date</h2></div><ol><li><b data-copy-audit="how-step-one-title">Keep a shared list.</b><span data-copy-audit="how-step-one-detail">Add chores the household repeats.</span></li><li><b data-copy-audit="how-step-two-title">Tap “Mark done.”</b><span data-copy-audit="how-step-two-detail">The time becomes a receipt.</span></li><li><b data-copy-audit="how-step-three-title">Check what is due.</b><span data-copy-audit="how-step-three-detail">Each chore repeats from completion.</span></li></ol></section><section class="privacy-note"><h2 data-copy-audit="privacy-heading">Keep your household record private</h2><p data-copy-audit="privacy-choice">Export or share a household copy only when you choose.</p><p data-copy-audit="privacy-sync">Household copies do not stay in sync. Scan or import again to update another device.</p><a href="/privacy" data-link data-copy-audit="privacy-link">Read the privacy details</a></section>${addDialog()}`,
+    `<section class="hero"><div class="hero-copy"><p class="eyebrow" data-claim="no-scoring" data-copy-audit="hero-scope">A household record, not a scorecard</p><h1 tabindex="-1" data-copy-audit="hero-heading">Record chores when they get done</h1><p class="lede" data-copy-audit="hero-audience">For roommates and families who share the work and need to know what is due next.</p><div class="actions"><a class="button primary" href="/demo" data-claim="demo-isolation" data-copy-audit="hero-demo-action">Try it with sample data</a><span class="action-note" data-copy-audit="hero-demo-note">See a working shared chore board.</span></div><div class="facts"><span data-claim="offline-reload" data-copy-audit="hero-offline-fact">Works offline after setup</span><span data-claim="stored-device" data-copy-audit="hero-storage-fact">Stored on this device</span><span data-claim="free" data-copy-audit="hero-price-fact">Free to use</span></div>${hasData ? `<a class="text-link" href="/log" data-link data-copy-audit="hero-real-action">Open your chore board →</a>` : `<button class="text-link" data-action="open-add" data-copy-audit="hero-real-action">Add your first chore →</button>`}</div><figure class="hero-art"><img src="/kitchen-diorama.webp" width="1200" height="800" fetchpriority="high" decoding="async" data-copy-audit="hero-art-description" alt="A paper-cut kitchen with a sink, cleaning cloth, plant, and blank receipt." /></figure></section>${samplePreview()}<section class="how"><div><p class="section-kicker" data-copy-audit="how-kicker">How it works</p><h2 data-copy-audit="how-heading">How chore receipts set the next due date</h2></div><ol><li><b data-copy-audit="how-step-one-title">Keep a shared list.</b><span data-copy-audit="how-step-one-detail">Add chores the household repeats.</span></li><li><b data-copy-audit="how-step-two-title">Tap “Mark done.”</b><span data-copy-audit="how-step-two-detail">The time becomes a receipt.</span></li><li><b data-copy-audit="how-step-three-title">Check what is due.</b><span data-claim="receipt-next-date" data-copy-audit="how-step-three-detail">Each chore repeats from completion.</span></li></ol></section><section class="privacy-note"><h2 data-copy-audit="privacy-heading">Keep your household record private</h2><p data-copy-audit="privacy-choice">Export or share a household copy only when you choose.</p><p data-claim="copies-no-sync" data-copy-audit="privacy-sync">Household copies do not stay in sync. Scan or import again to update another device.</p><a href="/privacy" data-link data-copy-audit="privacy-link">Read the privacy details</a></section>${addDialog()}`,
   );
 }
 function samplePreview() {
-  return `<section class="sample-preview" aria-labelledby="sample-preview-heading"><div class="preview-intro"><p class="section-kicker" data-copy-audit="preview-kicker">Sample board preview</p><h2 id="sample-preview-heading" data-copy-audit="preview-heading">Sample chore board</h2><p data-copy-audit="preview-description">This is Maple Street home. It is a sample, not your data.</p><a class="text-link" href="/demo" data-copy-audit="preview-demo-action">Open the editable sample board →</a></div><div class="preview-board"><div class="preview-board-head"><div><p class="eyebrow" data-copy-audit="preview-household">Maple Street home</p><h3 data-copy-audit="preview-current-heading">Current chores</h3></div><span class="preview-count" data-copy-audit="preview-due-count">2 due now</span></div><ul class="preview-chores"><li><span class="preview-clip" aria-hidden="true"></span><div><b data-copy-audit="preview-bathroom-title">Clean the bathroom</b><p data-copy-audit="preview-bathroom-detail"><strong>1 day overdue</strong> · repeats every 7 days</p></div><span class="preview-done" data-copy-audit="preview-bathroom-done" aria-label="Sample chore marked done">✓</span></li><li><span class="preview-clip" aria-hidden="true"></span><div><b data-copy-audit="preview-plants-title">Water the plants</b><p data-copy-audit="preview-plants-detail">Due in 3 days · repeats every 5 days</p></div><span class="preview-done" data-copy-audit="preview-plants-done" aria-label="Sample chore marked done">✓</span></li></ul><div class="preview-receipt"><span class="stamp" aria-hidden="true">✓</span><div><b data-copy-audit="preview-receipt-title">Water the plants</b><span class="preview-receipt-copy" data-copy-audit="preview-receipt-detail">Done Aug 26 · next Aug 31</span></div></div></div></section>`;
+  return `<section class="sample-preview" aria-labelledby="sample-preview-heading"><div class="preview-intro"><p class="section-kicker" data-copy-audit="preview-kicker">Sample board preview</p><h2 id="sample-preview-heading" data-copy-audit="preview-heading">Sample chore board</h2><p data-copy-audit="preview-description">This is Maple Street home. It is a sample, not your data.</p><a class="text-link" href="/demo" data-claim="demo-isolation" data-copy-audit="preview-demo-action">Open the editable sample board →</a></div><div class="preview-board"><div class="preview-board-head"><div><p class="eyebrow" data-copy-audit="preview-household">Maple Street home</p><h3 data-copy-audit="preview-current-heading">Current chores</h3></div><span class="preview-count" data-copy-audit="preview-due-count">2 due now</span></div><ul class="preview-chores"><li><span class="preview-clip" aria-hidden="true"></span><div><b data-copy-audit="preview-bathroom-title">Clean the bathroom</b><p data-copy-audit="preview-bathroom-detail"><strong>1 day overdue</strong> · repeats every 7 days</p></div><span class="preview-done" data-copy-audit="preview-bathroom-done" aria-label="Sample chore marked done">✓</span></li><li><span class="preview-clip" aria-hidden="true"></span><div><b data-copy-audit="preview-plants-title">Water the plants</b><p data-copy-audit="preview-plants-detail">Due in 3 days · repeats every 5 days</p></div><span class="preview-done" data-copy-audit="preview-plants-done" aria-label="Sample chore marked done">✓</span></li></ul><div class="preview-receipt"><span class="stamp" aria-hidden="true">✓</span><div><b data-copy-audit="preview-receipt-title">Water the plants</b><span class="preview-receipt-copy" data-copy-audit="preview-receipt-detail">Done Aug 26 · next Aug 31</span></div></div></div></section>`;
 }
 function repeatOptions(selected = 7) {
   return [1, 3, 5, 7, 14, 30]
@@ -348,7 +381,7 @@ function board() {
     b.completedAt.localeCompare(a.completedAt),
   );
   return appShell(
-    `<section class="board-head"><div><p class="eyebrow">${escape(state.household)}</p><h1 tabindex="-1">Shared chore board</h1><p>Mark the outcome. The next due date follows completion.</p></div><div class="board-tools"><button class="button primary" data-action="open-add">Add a chore</button><button class="button quiet" data-action="export-json">Export JSON backup</button></div></section>${lastReceipt ? `<p class="notice" role="status">Receipt added for ${escape(lastReceipt.title)}. Next due ${date(lastReceipt.dueAt)}. <button data-action="undo-receipt">Undo</button></p>` : ""}${sessionStorage.getItem("joined") ? `<p class="notice" role="status">Household copy added. Newer receipts were kept.</p>` : ""}${sessionStorage.getItem("join-error") ? `<p class="notice error" role="status">That household code could not be read. Ask for a new one.</p>` : ""}<section aria-labelledby="queue-heading" class="queue"><div class="section-title"><h2 id="queue-heading">Current chores</h2><span>${current.filter(due).length} due now</span></div>${current.length ? `<ul class="chore-list">${current.map((chore) => `<li class="chore ${due(chore) ? "is-due" : ""}"><div class="chore-clip" aria-hidden="true"></div><div><h3>${escape(chore.title)}</h3><p>${status(chore)} · repeats every ${chore.repeatDays} day${chore.repeatDays === 1 ? "" : "s"}</p><div class="chore-actions"><button data-action="open-edit" data-id="${encodeURIComponent(chore.id)}">Edit chore</button><button data-action="open-remove" data-id="${encodeURIComponent(chore.id)}">Remove chore</button></div></div><button class="done" data-action="complete" data-id="${encodeURIComponent(chore.id)}" aria-label="Mark ${escape(chore.title)} done"><span aria-hidden="true">✓</span> Mark done</button></li>`).join("")}</ul>` : `<div class="empty"><h3>No chores yet</h3><p>Your shared chores will appear here. Add one to make its first receipt.</p><button class="button primary" data-action="open-add">Add a chore</button></div>`}</section><section class="history" aria-labelledby="history-heading"><div class="section-title"><h2 id="history-heading">Recent receipts</h2><a href="/log" data-link>View all</a></div>${history.length ? `<ul>${history.slice(0, 4).map(receiptLine).join("")}</ul>` : `<p class="muted">A time-stamped receipt appears when someone marks a chore done.</p>`}</section>${addDialog()}${editDialog()}${removeDialog()}`,
+    `<section class="board-head"><div><p class="eyebrow">${escape(state.household)}</p><h1 tabindex="-1">Shared chore board</h1><p>Mark a chore done. Its repeat interval sets the next due date.</p></div><div class="board-tools"><button class="button primary" data-action="open-add">Add a chore</button><button class="button quiet" data-action="export-json">Export JSON backup</button></div></section>${lastReceipt ? `<p class="notice" role="status">Receipt added for ${escape(lastReceipt.title)}. Next due ${date(lastReceipt.dueAt)}. <button data-action="undo-receipt">Undo receipt</button></p>` : ""}${sessionStorage.getItem("joined") ? `<p class="notice" role="status">Household copy updated. Chore changes and receipt history were imported.</p>` : ""}${sessionStorage.getItem("join-error") ? `<p class="notice error" role="status">That household code could not be read. Ask for a new one.</p>` : ""}<section aria-labelledby="queue-heading" class="queue"><div class="section-title"><h2 id="queue-heading">Current chores</h2><span>${current.filter(due).length} due now</span></div>${current.length ? `<ul class="chore-list">${current.map((chore) => `<li class="chore ${due(chore) ? "is-due" : ""}"><div class="chore-clip" aria-hidden="true"></div><div><h3>${escape(chore.title)}</h3><p>${status(chore)} · repeats every ${chore.repeatDays} day${chore.repeatDays === 1 ? "" : "s"}</p><div class="chore-actions"><button data-action="open-edit" data-id="${encodeURIComponent(chore.id)}">Edit chore</button><button data-action="open-remove" data-id="${encodeURIComponent(chore.id)}">Remove chore</button></div></div><button class="done" data-action="complete" data-id="${encodeURIComponent(chore.id)}" aria-label="Mark ${escape(chore.title)} done"><span aria-hidden="true">✓</span> Mark done</button></li>`).join("")}</ul>` : `<div class="empty"><h3>No chores yet</h3><p>Your shared chores will appear here. Add one to make its first receipt.</p><button class="button primary" data-action="open-add">Add a chore</button></div>`}</section><section class="history" aria-labelledby="history-heading"><div class="section-title"><h2 id="history-heading">Recent receipts</h2><a href="/log" data-link>View all receipts</a></div>${history.length ? `<ul>${history.slice(0, 4).map(receiptLine).join("")}</ul>` : `<p class="muted">A time-stamped receipt appears when someone marks a chore done.</p>`}</section>${addDialog()}${editDialog()}${removeDialog()}`,
   );
 }
 function receiptLine(item: Receipt) {
@@ -363,7 +396,7 @@ function log() {
   );
 }
 function importPanel() {
-  return `<section class="paper-form"><h2>Back up or import data</h2><p>Save a Chore Receipt JSON backup, or choose one to restore.</p><button class="button quiet" data-action="export-json">Export JSON backup</button><label class="file-button" for="import-file">Choose JSON file</label><input id="import-file" type="file" accept="application/json" hidden /><p id="import-note" class="form-message" aria-live="polite"></p></section>`;
+  return `<section class="paper-form"><h2>Back up or import data</h2><p>Save a Chore Receipt JSON backup, or choose one to import.</p><button class="button quiet" data-action="export-json">Export JSON backup</button><label class="file-button" for="import-file">Choose JSON file</label><input id="import-file" type="file" accept="application/json" hidden /><p id="import-note" class="form-message" aria-live="polite"></p></section>`;
 }
 function settings() {
   return appShell(
@@ -372,7 +405,7 @@ function settings() {
 }
 function privacy() {
   return appShell(
-    `<article class="legal"><h1 tabindex="-1">Your household data stays here</h1><p>Chore Receipt stores chores, receipts, and your household name in this browser.</p><h2>What leaves this device</h2><p>Household data is not sent to the site. QR data stays after the # in the link, which browsers do not send to this site.</p><p>An export only leaves when you choose to download or share it.</p><h2>Household copies</h2><p>Copies do not stay in sync. Scan or import again to update another device.</p><h2>Demo data</h2><p>Demo data uses a separate browser database. Resetting the demo clears it and restores the sample. Starting for real deletes it.</p><h2>Children</h2><p>Do not add children’s names.</p></article>`,
+    `<article class="legal"><h1 tabindex="-1">Your household data stays here</h1><p>Chore Receipt stores chores, receipts, and your household name in this browser.</p><h2>What leaves this device</h2><p>Household data is not sent to the site. QR data stays after the # in the link, which browsers do not send to this site.</p><p>An export only leaves when you choose to download or share it.</p><h2>Household copies</h2><p>Copies do not stay in sync. Scan or import again to update another device.</p><h2>Demo data</h2><p>The demo keeps its sample separate from your household data. Resetting the demo restores the sample. Starting for real deletes the demo data.</p><h2>Children</h2><p>Do not add children’s names.</p></article>`,
   );
 }
 function terms() {
@@ -382,7 +415,7 @@ function terms() {
 }
 function notFound() {
   return appShell(
-    `<section class="error-state"><p class="eyebrow">Misfiled receipt</p><h1 tabindex="-1">This paper slip is missing</h1><p>The page you asked for is not in this household record.</p><a class="button primary" href="/" data-link>Return to the chore board</a></section>`,
+    `<section class="error-state"><h1 tabindex="-1">This page is missing.</h1><p>The page you asked for is not in this household record.</p><a class="button primary" href="/" data-link>Return to the chore board</a></section>`,
   );
 }
 function recovery() {
@@ -420,7 +453,7 @@ const metadata: Record<string, { title: string; description: string }> = {
     description: "Read the terms for keeping a local household chore record.",
   },
   "/404": {
-    title: "Missing receipt — Chore Receipt",
+    title: "Page not found — Chore Receipt",
     description: "This Chore Receipt page could not be found.",
   },
 };
@@ -498,6 +531,21 @@ async function merge(other: Store) {
     if (!chores.get(item.id) || chores.get(item.id)!.updatedAt < item.updatedAt)
       chores.set(item.id, item);
   });
+  const removedChores = new Map(
+    state.removedChores.map((item) => [item.id, item]),
+  );
+  validated.removedChores.forEach((item) => {
+    if (
+      !removedChores.get(item.id) ||
+      removedChores.get(item.id)!.removedAt < item.removedAt
+    )
+      removedChores.set(item.id, item);
+  });
+  removedChores.forEach((removed, choreId) => {
+    const chore = chores.get(choreId);
+    if (!chore || chore.updatedAt <= removed.removedAt) chores.delete(choreId);
+    else removedChores.delete(choreId);
+  });
   const receipts = new Map(state.receipts.map((item) => [item.id, item]));
   validated.receipts.forEach((item) => {
     if (
@@ -510,6 +558,7 @@ async function merge(other: Store) {
     household: validated.household || state.household,
     chores: [...chores.values()],
     receipts: [...receipts.values()],
+    removedChores: [...removedChores.values()],
   };
   await save();
 }
@@ -534,10 +583,18 @@ function bind() {
       }
       if (action === "close-dialog") element.closest("dialog")?.close();
       if (action === "reset-demo") {
+        lastReceipt = undefined;
+        sessionStorage.removeItem("joined");
+        sessionStorage.removeItem("join-error");
         await deleteDatabase(dbName);
         state = sample();
         await save();
         render();
+        document
+          .querySelector<HTMLButtonElement>('[data-action="reset-demo"]')
+          ?.focus();
+        document.querySelector<HTMLElement>(".announcer")!.textContent =
+          "Demo reset to four sample chores and four receipts.";
       }
       if (action === "start-real") {
         event.preventDefault();
@@ -606,7 +663,12 @@ function bind() {
         const choreId =
           dialog?.querySelector<HTMLInputElement>("#remove-id")?.value;
         if (!choreId) return;
+        const removedAt = now();
         state.chores = state.chores.filter((item) => item.id !== choreId);
+        state.removedChores = state.removedChores.filter(
+          (item) => item.id !== choreId,
+        );
+        state.removedChores.push({ id: choreId, removedAt });
         await save();
         dialog?.close();
         render();
@@ -669,7 +731,12 @@ function bind() {
         );
         if (!confirmed) return;
         await deleteDatabase(dbName);
-        state = { chores: [], receipts: [], household: "Our home" };
+        state = {
+          chores: [],
+          receipts: [],
+          removedChores: [],
+          household: "Our home",
+        };
         recoveryMode = false;
         location.assign("/");
       }
@@ -756,7 +823,8 @@ function bind() {
             "Backup restored. Your chore board can open again.";
         } else {
           await merge(incoming);
-          note.textContent = "Backup imported. Newer records were kept.";
+          note.textContent =
+            "Backup imported. Chore changes and receipt history were kept.";
         }
       } catch {
         note.textContent =

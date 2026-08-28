@@ -1,13 +1,93 @@
 [
-  {"id":"demo-isolation","claim":"Try it with sample data opens a separate sampled board.","where":"landing action, demo banner, README","test":"npm test -- --grep @claim:demo-isolation","sandbox":"Fresh landing page; one click opens /demo with four sample chores and only the demo store is populated."},
-  {"id":"demo-discard","claim":"Starting for real discards all demo changes.","where":"demo banner, Privacy, demo documentation","test":"npm test -- --grep @claim:demo-discard","sandbox":"Change the demo, start for real, assert the demo IndexedDB namespace is gone, then re-enter and observe only the four original receipts."},
-  {"id":"stored-device","claim":"Stored on this device.","where":"landing facts, Privacy, README","test":"npm test -- --grep @claim:stored-device","sandbox":"Fresh real board adds a chore and household name, confirms the saved state, reloads, and checks the exact values in the real IndexedDB namespace."},
-  {"id":"offline-reload","claim":"Works offline after setup.","where":"landing facts, README","test":"npm test -- --grep @claim:offline-reload","sandbox":"Fresh context loads /demo, waits for service-worker control, visits a true 404, then goes offline and verifies both /log and /demo still render the app."},
-  {"id":"csv-export","claim":"Export receipts as CSV.","where":"Receipt log, README","test":"npm test -- --grep @claim:csv-export","sandbox":"Demo receipt log download has the header and four receipt rows."},
-  {"id":"json-backup","claim":"Export and import a JSON backup.","where":"board, Household, README","test":"npm test -- --grep @claim:json-backup","sandbox":"A demo export uses the explicitly labelled control; Household also exposes it beside import. The export is imported into a separate empty real namespace, where household, chores, receipts, and visible receipt rows must match exactly."},
-  {"id":"local-only","claim":"Household data is not sent to the host.","where":"Privacy, Household, README","test":"npm test -- --grep @claim:local-only","sandbox":"QR sender and recipient flows record every request and assert only same-origin GETs occur and no URL or body contains the packet or known household fields."},
-  {"id":"qr-share","claim":"Share the current household with an opt-in QR code.","where":"Household, README","test":"npm test -- --grep @claim:qr-share","sandbox":"The four-receipt sample produces a QR and its fragment link imports into a fresh context."},
-  {"id":"copies-no-sync","claim":"Household copies do not stay in sync.","where":"landing privacy section, Household, Privacy","test":"npm test -- --grep @claim:copies-no-sync","sandbox":"A recipient imports the sample copy; a later source-only chore is absent after the recipient reloads until another import occurs."},
-  {"id":"receipt-next-date","claim":"Marking a chore done records a receipt and sets its next date.","where":"board, README","test":"npm test -- --grep @claim:receipt-next-date","sandbox":"Demo marks Water the plants done and asserts its receipt notice and five-day due date."},
-  {"id":"free","claim":"Free to use.","where":"landing facts, Terms","test":"npm test -- --grep @claim:free","sandbox":"Fresh landing page has no payment, checkout, or purchase control."}
+  {
+    "id": "demo-isolation",
+    "claim": "Try it with sample data opens a separate, editable sample board.",
+    "where": "landing actions, demo banner, README",
+    "test": "npm test -- --grep @claim:demo-isolation",
+    "sandbox": "From a fresh landing page, one click opens /demo with four sample chores; editing changes only the demo store. Direct ?demo=1 also opens the demo."
+  },
+  {
+    "id": "demo-reset",
+    "claim": "Reset demo restores the four-chore sample without changing household data.",
+    "where": "demo banner, Privacy, demo documentation",
+    "test": "npm test -- --grep @claim:demo-reset",
+    "sandbox": "Create real data, edit and complete a demo chore, reset, then assert the exact seed, cleared result and Undo state, announcement, focus, and unchanged real store."
+  },
+  {
+    "id": "demo-discard",
+    "claim": "Starting for real discards all demo changes.",
+    "where": "demo banner, Privacy, demo documentation, README",
+    "test": "npm test -- --grep @claim:demo-discard",
+    "sandbox": "Change the demo, start for real, assert the demo IndexedDB namespace is gone, then re-enter and observe only the four original receipts."
+  },
+  {
+    "id": "no-scoring",
+    "claim": "A household record, not a scorecard.",
+    "where": "landing hero, receipt log",
+    "test": "npm test -- --grep @claim:no-scoring",
+    "sandbox": "Complete a demo chore and assert the board and exported record contain no person, assignee, point, score, rank, or leaderboard fields."
+  },
+  {
+    "id": "stored-device",
+    "claim": "Stored on this device.",
+    "where": "landing facts, Privacy, README",
+    "test": "npm test -- --grep @claim:stored-device",
+    "sandbox": "Fresh real board adds a chore and household name, confirms the saved state, reloads, and checks the exact values in the real IndexedDB namespace."
+  },
+  {
+    "id": "offline-reload",
+    "claim": "Works offline after setup.",
+    "where": "landing facts, README",
+    "test": "npm test -- --grep @claim:offline-reload",
+    "sandbox": "Fresh context loads /demo, waits for service-worker control, visits a true 404, then goes offline and verifies both /log and /demo still render the app."
+  },
+  {
+    "id": "csv-export",
+    "claim": "Export receipts as CSV.",
+    "where": "Receipt log, README",
+    "test": "npm test -- --grep @claim:csv-export",
+    "sandbox": "Demo receipt log download has the expected header and one row for each of four receipts."
+  },
+  {
+    "id": "json-backup",
+    "claim": "Export and import a JSON backup.",
+    "where": "board, Household, README",
+    "test": "npm test -- --grep @claim:json-backup",
+    "sandbox": "Export the changed demo, import into a separate empty real namespace, and assert household, current chores, removal history, and receipts match exactly."
+  },
+  {
+    "id": "local-only",
+    "claim": "Household data is not sent to the site.",
+    "where": "Privacy, Household, README",
+    "test": "npm test -- --grep @claim:local-only",
+    "sandbox": "QR sender and recipient flows record every request and assert only same-origin GETs occur and no URL or body contains the packet or known household fields."
+  },
+  {
+    "id": "qr-share",
+    "claim": "Share the current household with an opt-in QR code.",
+    "where": "Household, README",
+    "test": "npm test -- --grep @claim:qr-share",
+    "sandbox": "The four-receipt sample produces a QR and its fragment link imports into a fresh context."
+  },
+  {
+    "id": "copies-no-sync",
+    "claim": "Household copies do not stay in sync; another scan or import applies later chore changes.",
+    "where": "landing privacy section, Household, Privacy",
+    "test": "npm test -- --grep @claim:copies-no-sync",
+    "sandbox": "A recipient stays unchanged until re-import; the next QR carries a source edit and removal while retaining receipt history and a destination-only chore."
+  },
+  {
+    "id": "receipt-next-date",
+    "claim": "Marking a chore done records a receipt and sets its next date.",
+    "where": "board, README",
+    "test": "npm test -- --grep @claim:receipt-next-date",
+    "sandbox": "Demo marks Water the plants done and asserts its receipt notice and exact five-day due interval."
+  },
+  {
+    "id": "free",
+    "claim": "Free to use.",
+    "where": "landing facts, Terms, README",
+    "test": "npm test -- --grep @claim:free",
+    "sandbox": "Fresh landing page has no payment, checkout, or purchase control."
+  }
 ]

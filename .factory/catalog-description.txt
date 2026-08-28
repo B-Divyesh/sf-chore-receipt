@@ -1,1 +1,1 @@
-Record shared chores and see when each is due next.
+Record shared chores, keep completion receipts, and see what is due next.

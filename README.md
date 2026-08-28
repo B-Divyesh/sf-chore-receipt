@@ -17,7 +17,8 @@ changes are deleted when you select **Start for real**.
 ## Privacy
 
 Chores, receipts, and the household name are stored in this browser. The demo
-uses its own browser database. See `/privacy` and `/terms` in the app.
+keeps its sample separate from your household data. See `/privacy` and
+`/terms` in the app.
 
 ## Develop and verify
 
@@ -30,8 +31,8 @@ npm run build
 ```
 
 `npm run build` creates the static deploy output in `dist/`, with `index.html`
-at its root. Each public claim has a Playwright test that checks the promised
-result.
+at its root. Product claims and their Playwright checks are listed in
+`.factory/claims.json`.
 
 ## Deploy
 
