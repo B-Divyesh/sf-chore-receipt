@@ -212,6 +212,12 @@ test('@claim:copies-no-sync Household copies stay separate until someone imports
   await expect(sourcePage.getByRole('heading', { name: 'Wipe the fridge shelf' })).toBeVisible();
   await recipientPage.reload();
   await expect(recipientPage.getByRole('heading', { name: 'Wipe the fridge shelf' })).toHaveCount(0);
+  await sourcePage.getByRole('link', { name: 'Household' }).click();
+  await sourcePage.getByRole('button', { name: 'Create household QR' }).click();
+  const updatedHref = await sourcePage.getByRole('link', { name: 'Open share link' }).getAttribute('href');
+  await recipientPage.goto('about:blank');
+  await recipientPage.goto(updatedHref!);
+  await expect(recipientPage.getByRole('heading', { name: 'Wipe the fridge shelf' })).toBeVisible();
   await source.close(); await recipient.close();
 });
 
@@ -391,14 +397,52 @@ test('hashed assets are immutable and the service worker always revalidates', as
   expect(config.routes.find((item) => item.route === '/sw.js')?.headers?.['Cache-Control']).toBe('public, max-age=0, must-revalidate');
 });
 
-test('the committed copy audit matches every current landing sentence', async ({ page }) => {
+test('landing headings name the product sections without slogans', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Sample chore board' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Current chores' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'How chore receipts set the next due date' })).toBeVisible();
+  await expect(page.getByText('Keep the outcome. Skip the blame.')).toHaveCount(0);
+  await expect(page.getByText('See a chore receipt at work')).toHaveCount(0);
+  await expect(page.getByText('Ready for anyone')).toHaveCount(0);
+  await expect(page.getByText('One receipt, then a clear next date')).toHaveCount(0);
+  await page.goto('/demo');
+  await expect(page.getByRole('heading', { name: 'Current chores' })).toBeVisible();
+});
+
+test('the committed copy audit matches every current landing copy unit and sentence', async ({ page }) => {
   await page.goto('/');
   const audited = readFileSync('.factory/copy-audit.md', 'utf8');
-  const copy = await page.locator('.hero,.sample-preview,.how,.privacy-note').locator('h1,h2,h3,p,b,.how li > span,.button,.text-link,.facts > span,.preview-count,.preview-receipt-copy,figcaption').allTextContents();
-  for (const item of [...new Set(copy.map((text) => text.trim()).filter(Boolean))]) expect(audited, item).toContain(`| ${item.replaceAll('|', '\\|')} |`);
-  for (const line of audited.split('\n').filter((line) => /^\| .+ \| \d+ \| pass \|$/i.test(line))) {
-    const cells = line.split('|').map((cell) => cell.trim()); const words = cells[1].replaceAll('\\|', '|').split(/\s+/).filter(Boolean).length;
-    expect(Number(cells[2]), cells[1]).toBe(words); expect(words, cells[1]).toBeLessThanOrEqual(22);
+  const copy = await page.evaluate(() => {
+    const selectors = [
+      '.skip', 'header .wordmark', 'header nav a',
+      '.hero-copy > .eyebrow', '.hero-copy > h1', '.hero-copy > .lede',
+      '.actions .button', '.action-note', '.facts > span', '.hero-copy > .text-link',
+      '.preview-intro > .section-kicker', '.preview-intro > h2', '.preview-intro > p:not(.section-kicker)', '.preview-intro > a',
+      '.preview-board-head .eyebrow', '.preview-board-head h3', '.preview-count',
+      '.preview-chores b', '.preview-chores p', '.preview-receipt b', '.preview-receipt-copy',
+      '.how > div > .section-kicker', '.how h2', '.how li > b', '.how li > span',
+      '.privacy-note h2', '.privacy-note p', '.privacy-note a',
+      'footer > p', 'footer a', 'footer div > span:not(.sr-only)'
+    ];
+    const text = (element: Element) => {
+      const clone = element.cloneNode(true) as HTMLElement;
+      clone.querySelectorAll('[aria-hidden="true"]').forEach((item) => item.remove());
+      return (clone.innerText || clone.textContent || '').replace(/\s+/g, ' ').trim();
+    };
+    return [...new Set(selectors.flatMap((selector) => [...document.querySelectorAll(selector)])
+      .map(text)
+      .flatMap((item) => item.split(/(?<=[.!?])\s+/))
+      .filter(Boolean))];
+  });
+  const rows = audited.split('\n')
+    .map((line) => line.match(/^\| (.+?) \| (\d+) \| pass \|$/i))
+    .filter((match): match is RegExpMatchArray => Boolean(match));
+  const auditedCopy = rows.map((match) => match[1].replaceAll('\\|', '|'));
+  expect(auditedCopy.sort()).toEqual([...copy].sort());
+  for (const match of rows) {
+    const words = match[1].replaceAll('\\|', '|').split(/\s+/).filter(Boolean).length;
+    expect(Number(match[2]), match[1]).toBe(words); expect(words, match[1]).toBeLessThanOrEqual(22);
   }
   for (const banned of ['leverage', 'seamless', 'effortless', 'robust', 'powerful', 'intuitive', 'reimagine', 'supercharge', 'delightful', 'journey', 'ecosystem', 'AI-powered']) expect(audited.toLowerCase()).not.toContain(banned.toLowerCase());
 });
