@@ -7,9 +7,9 @@ export default defineConfig({
   timeout: 30_000,
   use: {
     baseURL: liveBaseUrl || 'http://127.0.0.1:4173',
-    // Axe is injected only by the test harness; live CSP remains verified by
-    // the browser and response-header checks.
-    bypassCSP: Boolean(liveBaseUrl),
+    // Axe is injected only by the test harness; the response-header test still
+    // verifies the production CSP on both normal and missing routes.
+    bypassCSP: true,
     ...devices['Desktop Chrome']
   },
   webServer: liveBaseUrl ? undefined : {

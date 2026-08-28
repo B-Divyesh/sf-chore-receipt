@@ -484,10 +484,27 @@ test('the service worker versions assets and caches only successful responses', 
 });
 
 test('hashed assets are immutable and the service worker always revalidates', async () => {
-  const config = JSON.parse(readFileSync('public/staticwebapp.config.json', 'utf8')) as { routes: Array<{ route: string; headers?: Record<string, string> }> };
+  const config = JSON.parse(readFileSync('public/staticwebapp.config.json', 'utf8')) as {
+    routes: Array<{ route: string; headers?: Record<string, string> }>;
+    globalHeaders: Record<string, string>;
+  };
   expect(JSON.parse(readFileSync('dist/staticwebapp.config.json', 'utf8'))).toEqual(config);
   expect(config.routes.find((item) => item.route === '/assets/*')?.headers?.['Cache-Control']).toBe('public, max-age=31536000, immutable');
   expect(config.routes.find((item) => item.route === '/sw.js')?.headers?.['Cache-Control']).toBe('public, max-age=0, must-revalidate');
+});
+
+test('normal and missing routes send a frame-ancestors response header', async ({ request }) => {
+  const config = JSON.parse(readFileSync('public/staticwebapp.config.json', 'utf8')) as {
+    globalHeaders: Record<string, string>;
+  };
+  const expected = config.globalHeaders['Content-Security-Policy'];
+  expect(expected).toContain("frame-ancestors 'self'");
+  for (const route of ['/', '/missing-csp-check']) {
+    const response = await request.get(route);
+    expect(response.headers()['content-security-policy'], route).toContain("frame-ancestors 'self'");
+    expect(response.headers()['content-security-policy'], route).toBe(expected);
+    if (process.env.PLAYWRIGHT_BASE_URL && route !== '/') expect(response.status()).toBe(404);
+  }
 });
 
 test('landing headings name the product sections without slogans', async ({ page }) => {
@@ -520,7 +537,7 @@ test('README and catalog use plain, bounded product wording', () => {
   expect(readme).not.toContain('browser database');
   expect(readme).not.toContain('Each public claim');
   const catalog = readFileSync('.factory/catalog-description.txt', 'utf8').trim();
-  expect(catalog).toBe('Record shared chores, keep completion receipts, and see what is due next.');
+  expect(catalog).toBe('Record shared chores and see what is due next.');
   expect(catalog.length).toBeLessThanOrEqual(120);
 });
 

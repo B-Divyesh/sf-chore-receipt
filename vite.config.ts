@@ -3,6 +3,23 @@ import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 
+function previewSecurityHeaders(): Plugin {
+  const config = JSON.parse(
+    readFileSync("public/staticwebapp.config.json", "utf8"),
+  ) as { globalHeaders: Record<string, string> };
+  const contentSecurityPolicy = config.globalHeaders["Content-Security-Policy"];
+
+  return {
+    name: "preview-security-headers",
+    configurePreviewServer(server) {
+      server.middlewares.use((_request, response, next) => {
+        response.setHeader("Content-Security-Policy", contentSecurityPolicy);
+        next();
+      });
+    },
+  };
+}
+
 function versionedServiceWorker(): Plugin {
   return {
     name: "versioned-service-worker",
@@ -92,7 +109,7 @@ function versionedServiceWorker(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [versionedServiceWorker()],
+  plugins: [previewSecurityHeaders(), versionedServiceWorker()],
   build: {
     target: "es2022",
     sourcemap: false,
