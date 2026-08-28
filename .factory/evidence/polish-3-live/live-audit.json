@@ -1,0 +1,59 @@
+{
+  "routes": [
+    {
+      "path": "/",
+      "title": "Chore Receipt — record shared chores",
+      "h1": 1,
+      "main": 1,
+      "canonical": "https://chore-receipt.sociobot.in/",
+      "seriousOrCritical": 0
+    },
+    {
+      "path": "/demo",
+      "title": "Demo — Chore Receipt",
+      "h1": 1,
+      "main": 1,
+      "canonical": "https://chore-receipt.sociobot.in/demo",
+      "seriousOrCritical": 0
+    },
+    {
+      "path": "/log",
+      "title": "Receipt log — Chore Receipt",
+      "h1": 1,
+      "main": 1,
+      "canonical": "https://chore-receipt.sociobot.in/log",
+      "seriousOrCritical": 0
+    },
+    {
+      "path": "/settings",
+      "title": "Household — Chore Receipt",
+      "h1": 1,
+      "main": 1,
+      "canonical": "https://chore-receipt.sociobot.in/settings",
+      "seriousOrCritical": 0
+    },
+    {
+      "path": "/privacy",
+      "title": "Privacy — Chore Receipt",
+      "h1": 1,
+      "main": 1,
+      "canonical": "https://chore-receipt.sociobot.in/privacy",
+      "seriousOrCritical": 0
+    },
+    {
+      "path": "/terms",
+      "title": "Terms — Chore Receipt",
+      "h1": 1,
+      "main": 1,
+      "canonical": "https://chore-receipt.sociobot.in/terms",
+      "seriousOrCritical": 0
+    }
+  ],
+  "checks": {
+    "demo": "direct ?demo=1 banner, sample, completion, and reset passed",
+    "qrPrivacy": "same-origin GET-only QR sender/recipient traffic, no packet or household fields",
+    "offline": "true 404 followed by offline receipt-log navigation passed",
+    "notFound": "true 404 includes the accessible product skeleton"
+  },
+  "consoleErrors": []
+}

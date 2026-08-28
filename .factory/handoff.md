@@ -1,89 +1,60 @@
-# Chore Receipt — review 3 handoff
+# Chore Receipt — polish 3 handoff
 
-## Review result
+## Released repair
 
-No product code was modified. Review commit documents a **FAIL** of the live
-release: repeated blocking `F-1-18` (the committed landing copy audit is not
-one row per rendered sentence and omits rendered text), plus four minor
-plain-words copy findings. See `.factory/review-3.md` for exact quotes,
-evidence, and rewrites.
+- Repair code: `f49bfed11fc355a4ef1f3e049cba12c8700f3edb`
+- Base reviewed: `40424eacfd3da8b330ecdd9a7b10cc5301e67fc2`
+- Review report: `8f7a084002d131e7e15f1b685ad01f1cbae91446`
+- Deployment: `6a8ee596-c0be-4576-8ef7-6ace607817f1`
+- Live URL: <https://chore-receipt.sociobot.in>
 
-## Review verification
+The release now has a complete, mechanically checked landing-copy audit and
+removes every review-3 copy defect. The hero no longer has a slogan caption;
+the sample preview is **Sample chore board**; all chore queues are **Current
+chores**; and the explanatory section is **How chore receipts set the next
+due date**. The no-sync claim regression now also proves that a new copy makes
+a source-only chore available only after a recipient imports it again.
 
-- Cold live first-read checks at 390×844 and 1440×900 were clear about the
-  job, audience, and first action.
-- Live demo was exercised from one click through completion, Reset demo, and
-  Start for real. It showed four realistic chores/four receipts, preserved
-  isolation, and showed the required banner.
-- Live request logging found same-origin GET-only app traffic. A true 404
-  before offline mode retained the HTTP-200 app shell and rendered offline
-  `/log` correctly.
-- From fresh clone `/tmp/chore-receipt-review3.b26nhh/repo`: `npm ci`, all 11
-  commands in `.factory/claims.json`, `npm test -- --workers=1` (26/26), and
-  `npm run build` passed; `dist/` was produced.
+`.factory/polish-3.md` maps every finding from all review rounds, prior polish
+records, controller feedback, and verification reports to its repair and live
+evidence.
 
-## Required next steps
+## Verification
 
-1. Repair `F-1-18` as described in the review, then correct the four landing
-   copy findings `F-3-1` through `F-3-4`.
-2. Re-run the full review checklist, not a diff-only check.
+Clean clone: `/tmp/chore-receipt-polish3-clean.8qGOu0/repo` at repair commit
+`f49bfed`.
 
----
+1. `npm ci` passed: 52 packages installed; 0 vulnerabilities reported.
+2. Every declared claim command was run separately and passed (11/11):
+   `demo-isolation`, `demo-discard`, `stored-device`, `offline-reload`,
+   `csv-export`, `json-backup`, `local-only`, `qr-share`, `copies-no-sync`,
+   `receipt-next-date`, and `free`.
+3. `npm test -- --workers=1` passed **27/27**. This includes all claim tests,
+   demo isolation/discard/reset, corrupt-data recovery, edit/remove, metadata,
+   focus/announcement history navigation, phone layout/200% text, true-404
+   offline recovery, privacy request bodies, cache policy, exact copy audit,
+   and Axe serious/critical checks for every product route and the 404.
+4. `npm run build` passed and produced `dist/`. Initial bundle sizes: JS
+   52.25 kB raw / 18.43 kB gzip; CSS 14.41 kB raw / 4.10 kB gzip; hero WebP
+   93.11 kB.
+5. Local `verify-url.sh` passed with no console errors; evidence is in
+   `.factory/evidence/polish-3-local/verify.json` and its screenshots. Local
+   mobile Lighthouse: Performance 99, Accessibility 100, Best Practices 100,
+   SEO 100; FCP 1,054 ms, LCP 1,956 ms, TBT 0 ms, CLS 0.014.
+6. After deployment, `verify-url.sh https://chore-receipt.sociobot.in/`
+   passed cold with no console errors. `live-audit.json` records successful
+   200 route metadata/landmark checks, direct `?demo=1` banner/sample/reset,
+   QR request privacy, true 404 then offline receipt log, and an accessible
+   true 404. It found zero serious or critical Axe issues on `/`, `/demo`,
+   `/log`, `/settings`, `/privacy`, `/terms`, and `/not-a-page`.
+7. Live cache checks confirmed `assets/index-DGB9tstE.js` has
+   `Cache-Control: public, max-age=31536000, immutable`; `sw.js` has
+   `public, max-age=0, must-revalidate`.
+8. Live mobile Lighthouse: **Performance 100, Accessibility 100, Best
+   Practices 100, SEO 100**; FCP 908 ms, LCP 1,508 ms, TBT 17 ms, CLS 0.014.
+   Evidence is `.factory/evidence/polish-3-live/lighthouse-mobile.json`.
 
-# Previous polish 2 handoff
-
-## Delivered
-
-Repair commit `63245a33b6700011b90bc91f5231d5dfd290594f` closes every finding from
-`.factory/review-1.md` and `.factory/review-2.md`.
-
-- The landing page now contains a clearly labelled, non-persistent Maple
-  Street sample board before “How it works.” It shows chores, a due state, a
-  dated receipt, and its next date; its link opens the editable isolated demo.
-- JSON export is now named **Export JSON backup** on the board and log, and is
-  present beside JSON import on Household.
-- The existing local-first PWA, separate demo IndexedDB namespace, service
-  worker, legal routes, real 404, route metadata, recovery, QR copy, and
-  cut-paper receipt visual identity were retained.
-- Catalog copy is now: “Record shared chores, track receipts, and see the next
-  due date.”
-
-## Exact verification
-
-Clean clone: `/tmp/chore-receipt-polish2.meoE6X` from repair commit `63245a3`.
-
-1. `npm ci` completed with 0 vulnerabilities.
-2. Every exact command in `.factory/claims.json` ran separately and passed:
-   `@claim:demo-isolation`, `@claim:demo-discard`, `@claim:stored-device`,
-   `@claim:offline-reload`, `@claim:csv-export`, `@claim:json-backup`,
-   `@claim:local-only`, `@claim:qr-share`, `@claim:copies-no-sync`,
-   `@claim:receipt-next-date`, and `@claim:free` (11/11).
-3. `npm test -- --workers=1` passed 26/26, including route metadata, focus and
-   Back/Forward, mobile targets and 200% text, recovery, privacy request-body
-   checks, demo isolation/reset, service-worker offline handling, and Axe
-   serious/critical checks on every local route and 404.
-4. `npm run build` passed and produced `dist/index.html`; initial JS is
-   52.32 kB raw / 18.47 kB gzip and CSS is 14.41 kB raw / 4.10 kB gzip.
-5. Deployed with `/opt/fleet/lib/deploy-static.sh chore-receipt dist`.
-   Azure upload deployment `821f3976-f965-4f54-8ca6-454ee0e8c56e` succeeded.
-6. Cold live verification of `https://chore-receipt.sociobot.in/` passed via
-   `/opt/fleet/lib/verify-url.sh`: HTTP 200, title/lang/one h1/main/alt
-   checks, and zero console errors. Evidence:
-   `.factory/evidence/polish-2-live/verify.json` and its desktop/mobile
-   screenshots.
-7. A fresh live Playwright audit checked `/`, `/demo`, `/log`, `/settings`,
-   `/privacy`, `/terms`, and a true 404 for titles, canonical metadata, one
-   h1/main, and zero serious/critical Axe findings. It also confirmed the
-   preview, `?demo=1` banner/reset/start-real, mobile Household navigation,
-   Household JSON backup next to import, h1 focus after navigation, and the
-   404-poisoning offline regression. The deliberate missing-route request
-   generated the expected browser failed-resource 404 message; no other page
-   errors occurred. Screenshots are in `.factory/evidence/polish-2-live/`.
-8. Mobile Lighthouse on the deployed landing page scored 100 performance and
-   100 accessibility; LCP was 1,509.667 ms and CLS 0.006. Evidence:
-   `.factory/evidence/polish-2-live/lighthouse-mobile.json`.
-
-## Run locally
+## Run and verify locally
 
 ```sh
 npm ci
@@ -92,7 +63,9 @@ npm run build
 npm run preview
 ```
 
-Open `/demo` or `/?demo=1` for the isolated sample board.
+Open `/demo` or `/?demo=1` for the isolated sample. The demo banner offers
+**Reset demo** and **Start for real**; starting for real removes the demo
+database before returning to the real board.
 
 ## Known gaps
 
