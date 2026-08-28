@@ -1,46 +1,29 @@
-# Chore Receipt — polish 1 handoff
+# Chore Receipt — review 2 handoff
 
-Repair commits: `d1451c056ac207188d0c20909d6ec762e62a7ed6` and
-`c2349126c4bc8ab4809da07cf9c15e396d364efd`. The repair is pushed to `main`
-and deployed to <https://chore-receipt.sociobot.in> (Static Web Apps deployment
-`798c57db-2ee6-4125-bee3-b83d7c413dc7`).
+## What was done
 
-## What changed
+Performed the requested non-modifying adversarial review of
+<https://chore-receipt.sociobot.in> and committed the report in
+`.factory/review-2.md`. Product source was not changed.
 
-The repair closes F-1-1 through F-1-18 in `.factory/review-1.md`: offline-safe
-caching, mobile Household access, corrupt-data recovery, route focus and
-announcements, chore editing/removal, truthful claim tests, no-sync disclosure,
-route metadata, complete 404 structure, form errors, copy, provenance,
-external-link cue, and current copy audit.
+## How verified
 
-This retry moves Skip to content into the initial document, outside the
-asynchronous IndexedDB mount. From a fresh page the first Tab focuses the
-visible link. The demo claim also directly opens `?demo=1`. Catalog copy is
-now: “Record shared chores, keep receipts, and see what is due next.”
+- Fresh Chromium contexts at 390×844 and 1440×900 confirmed the cold first
+  read and one-click live demo.
+- A clean clone at `/tmp/chore-receipt-review2-clean` completed `npm ci`, every
+  exact `.factory/claims.json` command (11/11), `npm test -- --workers=1`
+  (25/25), and `npm run build`.
+- Live Playwright checks covered demo reset/isolation, QR request privacy,
+  offline navigation after a true 404, metadata/routes, focus/Back behaviour,
+  mobile target sizes, and a crawl of all discovered internal links.
+- Read the prior review, polish record, and handoff; each F-1-1 through F-1-18
+  was confirmed fixed in the current site/source/tests.
 
-## Exact verification evidence
+## Remaining work
 
-- Fresh GitHub clone `/tmp/chore-receipt-clean-gxBjv6`: `npm ci` completed
-  with zero vulnerabilities; every exact command in `.factory/claims.json`
-  passed (11/11).
-- Fresh-clone `npm test -- --workers=1`: 25/25 Playwright tests passed.
-- Fresh-clone `npm run build` passed and produced `dist/`: initial JS 50.99 kB
-  raw / 18.23 kB gzip; CSS 12.59 kB raw / 3.76 kB gzip.
-- Local `verify-url.sh` on `/demo` passed in 567 ms; live `verify-url.sh` on
-  `/demo` passed in 893 ms. Both found no console errors, `lang=en`, one h1,
-  main, no missing image alt text, and no unnamed buttons.
-- Cold live browser audit passed first-Tab focus, `?demo=1` banner/reset, all
-  six normal route titles/canonicals, 390 px Household navigation, true 404,
-  and a visited-404 then offline `/log` navigation. Screenshots are under
-  `.factory/evidence/polish-1-retry-live/`.
-- Live Playwright Axe passed with no serious or critical violations on `/`,
-  `/demo`, `/log`, `/settings`, `/privacy`, `/terms`, and `/404.html`.
+The review verdict is **FAIL** with two findings:
 
-`npx @axe-core/cli` was attempted but cannot start without the system Chrome
-binary required by CLI/Selenium. The installed Playwright Chromium ran both the
-repository Axe test and a separate cold live Axe audit successfully.
+1. Add an actual sample product preview to the landing page.
+2. Rename and colocate the JSON backup export action with import.
 
-Known product gaps: none.
-
-Run locally with `npm ci && npm test -- --workers=1 && npm run build`; then
-`npm run preview` and open `/demo` or `/?demo=1`.
+See `.factory/review-2.md` for exact locations, impact, and fixes.
