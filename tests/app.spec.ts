@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import axe from 'axe-core';
+import { readFileSync } from 'node:fs';
 
 test('@claim:demo-isolation @claim:stored-device The one-click demo is sampled and isolated', async ({ page }) => {
   await page.goto('/');
@@ -13,6 +14,32 @@ test('@claim:demo-isolation @claim:stored-device The one-click demo is sampled a
     return await new Promise<unknown>((resolve) => { open.onsuccess = () => { const transaction = open.result.transaction('state', 'readonly'); const get = transaction.objectStore('state').get('current'); get.onsuccess = () => resolve(get.result); }; });
   });
   expect(realBefore).toBeUndefined();
+});
+
+test('@claim:demo-discard Starting for real deletes changed demo data', async ({ page }) => {
+  await page.goto('/demo');
+  await page.getByRole('button', { name: /Mark Water the plants done/ }).click();
+  await expect(page.getByRole('status')).toContainText('Receipt added for Water the plants');
+
+  await page.getByRole('link', { name: 'Start for real' }).click();
+  await expect(page).toHaveURL('http://127.0.0.1:4173/');
+  await expect(page.getByRole('heading', { name: 'Record chores when they get done' })).toBeVisible();
+  const databaseNames = await page.evaluate(async () => (await indexedDB.databases()).map((database) => database.name));
+  expect(databaseNames).not.toContain('chore-receipt-demo-v1');
+
+  await page.goto('/demo');
+  const receiptCount = await page.evaluate(async () => {
+    const open = indexedDB.open('chore-receipt-demo-v1');
+    return await new Promise<number>((resolve, reject) => {
+      open.onerror = () => reject(open.error);
+      open.onsuccess = () => {
+        const get = open.result.transaction('state', 'readonly').objectStore('state').get('current');
+        get.onerror = () => reject(get.error);
+        get.onsuccess = () => resolve(get.result.receipts.length);
+      };
+    });
+  });
+  expect(receiptCount).toBe(4);
 });
 
 test('@claim:offline-reload Works offline after the first visit', async ({ page, context }) => {
@@ -125,6 +152,19 @@ test('mobile controls meet the 44px target', async ({ page }) => {
   expect(undersized).toEqual([]);
 });
 
+test('the 390px demo keeps all controls visible at 200% text size', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/demo');
+  await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+  const layout = await page.evaluate(() => ({
+    overflows: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    clippedControls: [...document.querySelectorAll('a,button')]
+      .filter((item) => item.scrollWidth > item.clientWidth + 1 || item.scrollHeight > item.clientHeight + 1)
+      .map((item) => item.textContent?.trim())
+  }));
+  expect(layout).toEqual({ overflows: false, clippedControls: [] });
+});
+
 test('the generated worker versions hashed build assets and fallback pages avoid inline CSP styles', async ({ page, request }) => {
   const worker = await (await request.get('/sw.js')).text();
   expect(worker).toMatch(/chore-receipt-[a-f0-9]{12}/);
@@ -135,6 +175,20 @@ test('the generated worker versions hashed build assets and fallback pages avoid
   }
   await page.goto('/demo');
   await expect(page.getByRole('heading', { name: 'Shared chore board' })).toBeVisible();
+});
+
+test('hashed assets are immutable while the service worker always revalidates', async () => {
+  const config = JSON.parse(readFileSync('public/staticwebapp.config.json', 'utf8')) as { routes: Array<{ route: string; headers?: Record<string, string> }> };
+  const deployedConfig = JSON.parse(readFileSync('dist/staticwebapp.config.json', 'utf8'));
+  expect(deployedConfig).toEqual(config);
+  const assetPolicy = config.routes.find((item) => item.route === '/assets/*');
+  const workerPolicy = config.routes.find((item) => item.route === '/sw.js');
+  expect(assetPolicy?.headers?.['Cache-Control']).toBe('public, max-age=31536000, immutable');
+  expect(workerPolicy?.headers?.['Cache-Control']).toBe('public, max-age=0, must-revalidate');
+
+  const builtHtml = readFileSync('dist/index.html', 'utf8');
+  expect(builtHtml).toMatch(/\/assets\/[a-zA-Z0-9_-]+-[a-zA-Z0-9_-]+\.js/);
+  expect(builtHtml).toMatch(/\/assets\/[a-zA-Z0-9_-]+-[a-zA-Z0-9_-]+\.css/);
 });
 
 test('landing has no serious axe findings', async ({ page }) => {

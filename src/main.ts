@@ -13,6 +13,7 @@ const isDemoUrl = (url = location.href) => {
 };
 const isDemo = isDemoUrl();
 const dbName = `chore-receipt-${isDemo ? 'demo' : 'real'}-v1`;
+const demoDbName = 'chore-receipt-demo-v1';
 const now = () => new Date().toISOString();
 const id = () => crypto.randomUUID();
 let state: Store = { chores: [], receipts: [], household: 'Our home' };
@@ -37,6 +38,14 @@ async function save() {
   const database = await db(); const tx = database.transaction('state', 'readwrite');
   tx.objectStore('state').put(state, 'current');
   await new Promise<void>((resolve, reject) => { tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); }); database.close();
+}
+function deleteDatabase(name: string) {
+  return new Promise<void>((resolve, reject) => {
+    const deletion = indexedDB.deleteDatabase(name);
+    deletion.onsuccess = () => resolve();
+    deletion.onerror = () => reject(deletion.error);
+    deletion.onblocked = () => reject(new Error(`Database ${name} is still open`));
+  });
 }
 function sample(): Store {
   const at = (daysAgo: number, hour = 9) => new Date(Date.now() - daysAgo * day - hour * 3_600_000).toISOString();
@@ -124,7 +133,7 @@ function header() {
   return `<a class="skip" href="#main">Skip to content</a><header><a class="wordmark" href="/" data-link><span aria-hidden="true">▰</span> Chore Receipt</a><nav aria-label="Main navigation"><a href="/log" data-link>Receipt log</a><a href="/settings" data-link>Household</a><a href="/privacy" data-link>Privacy</a></nav></header>`;
 }
 function footer() { return `<footer><p>A shared record for recurring chores. Generated art is original to this product.</p><div><a href="/privacy" data-link>Privacy</a><a href="/terms" data-link>Terms</a><a href="https://sociobot.in" rel="noopener">Built by Param Factory</a><span>v1.1.0</span></div></footer>`; }
-function demoBanner() { return isDemo ? `<aside class="demo-banner" aria-label="Demo controls"><span><strong>Demo</strong> — sample data, nothing is saved.</span><button data-action="reset-demo">Reset demo</button><a class="button small" href="/">Start for real</a></aside>` : ''; }
+function demoBanner() { return isDemo ? `<aside class="demo-banner" aria-label="Demo controls"><span><strong>Demo</strong> — sample data, nothing is saved.</span><button data-action="reset-demo">Reset demo</button><a class="button small" href="/" data-action="start-real">Start for real</a></aside>` : ''; }
 function appShell(content: string) { return `${header()}${demoBanner()}<main id="main" tabindex="-1">${content}</main>${footer()}<div class="announcer" aria-live="polite"></div>`; }
 function landing() {
   const hasData = state.chores.length > 0;
@@ -139,7 +148,7 @@ function board() {
 function receiptLine(item: Receipt) { return `<li><span class="stamp" aria-hidden="true">✓</span><div><b>${escape(item.title)}</b><p>Done ${dateTime(item.completedAt)} · next ${date(item.dueAt)}</p></div></li>`; }
 function log() { const receipts = [...state.receipts].sort((a, b) => b.completedAt.localeCompare(a.completedAt)); return appShell(`<section class="page-head"><p class="eyebrow">Neutral household record</p><h1>Every chore receipt</h1><p>Completion times are shown without names or points.</p><div class="board-tools"><button class="button quiet" data-action="export-csv">Export CSV</button><button class="button quiet" data-action="export-json">Export JSON</button></div></section><section class="history full"><h2>Receipt history</h2>${receipts.length ? `<ul>${receipts.map(receiptLine).join('')}</ul>` : `<div class="empty"><h3>No receipts yet</h3><p>Mark a shared chore done to place its receipt here.</p><a class="button primary" href="/" data-link>Go to the chore board</a></div>`}</section>`); }
 function settings() { return appShell(`<section class="page-head"><p class="eyebrow">Keep a household copy</p><h1>Household and data</h1><p>Share only when everyone agrees.</p></section><section class="settings-grid"><section class="paper-form"><h2>Name this household</h2><label for="household">Household name</label><input id="household" value="${escape(state.household)}" maxlength="60"/><button class="button primary" data-action="save-household">Save household name</button></section><section class="paper-form"><h2>Share a household copy</h2><p>Create an opt-in QR code. Its data stays after the # sign.</p><button class="button quiet" data-action="make-qr">Create household QR</button><div id="qr-place" class="qr-place"></div><p class="muted">Use Export JSON for a full backup.</p></section><section class="paper-form"><h2>Import a backup</h2><p>Choose a Chore Receipt JSON export.</p><label class="file-button" for="import-file">Choose JSON file</label><input id="import-file" type="file" accept="application/json" hidden /><p id="import-note" aria-live="polite"></p></section></section>`); }
-function privacy() { return appShell(`<article class="legal"><h1>Your household data stays here</h1><p>Chore Receipt stores chores, receipts, and your household name in this browser.</p><h2>What leaves this device</h2><p>Household data is not sent to the host. QR data is kept in the URL fragment, which browsers do not send in requests. An export only leaves when you choose to download or share it.</p><h2>Demo data</h2><p>Demo data uses a separate browser database. Resetting the demo deletes that database only.</p><h2>Children</h2><p>Do not add children’s names.</p></article>`); }
+function privacy() { return appShell(`<article class="legal"><h1>Your household data stays here</h1><p>Chore Receipt stores chores, receipts, and your household name in this browser.</p><h2>What leaves this device</h2><p>Household data is not sent to the host. QR data is kept in the URL fragment, which browsers do not send in requests. An export only leaves when you choose to download or share it.</p><h2>Demo data</h2><p>Demo data uses a separate browser database. Resetting the demo clears it and restores the sample. Starting for real deletes it.</p><h2>Children</h2><p>Do not add children’s names.</p></article>`); }
 function terms() { return appShell(`<article class="legal"><h1>Terms for using Chore Receipt</h1><p>Use Chore Receipt to keep a household record.</p><h2>Your responsibility</h2><p>Check exports and shared copies before relying on them. This app does not replace safety or tenancy records.</p></article>`); }
 function notFound() { return appShell(`<section class="error-state"><p class="eyebrow">Misfiled receipt</p><h1>This paper slip is missing</h1><p>The page you asked for is not in this household record.</p><a class="button primary" href="/" data-link>Return to the chore board</a></section>`); }
 function render() {
@@ -163,11 +172,12 @@ async function merge(other: Store) {
 }
 function bind() {
   document.querySelectorAll<HTMLAnchorElement>('[data-link]').forEach((anchor) => anchor.addEventListener('click', (event) => { if (anchor.origin === location.origin) { event.preventDefault(); navigate(anchor.pathname + anchor.search); } }));
-  document.querySelectorAll<HTMLElement>('[data-action]').forEach((element) => element.addEventListener('click', async () => {
+  document.querySelectorAll<HTMLElement>('[data-action]').forEach((element) => element.addEventListener('click', async (event) => {
     const action = element.dataset.action;
     if (action === 'open-add') { const dialog = document.querySelector<HTMLDialogElement>('#add-dialog'); dialog?.showModal(); dialog?.querySelector<HTMLInputElement>('input')?.focus(); }
     if (action === 'close-add') document.querySelector<HTMLDialogElement>('#add-dialog')?.close();
-    if (action === 'reset-demo') { indexedDB.deleteDatabase(dbName); state = sample(); await save(); render(); }
+    if (action === 'reset-demo') { await deleteDatabase(dbName); state = sample(); await save(); render(); }
+    if (action === 'start-real') { event.preventDefault(); await deleteDatabase(demoDbName); location.assign('/'); }
     if (action === 'complete') { const chore = state.chores.find((item) => item.id === element.dataset.id); if (!chore) return; const completedAt = now(); chore.completedAt = completedAt; chore.updatedAt = completedAt; const receipt = { id: id(), choreId: chore.id, title: chore.title, completedAt, dueAt: new Date(Date.now() + chore.repeatDays * day).toISOString(), updatedAt: completedAt }; state.receipts.push(receipt); lastReceipt = receipt; await save(); render(); const note = document.querySelector('.announcer'); if (note) note.textContent = `${chore.title} marked done. Receipt added.`; }
     if (action === 'undo-receipt' && lastReceipt) { const removed = lastReceipt; state.receipts = state.receipts.filter((receipt) => receipt.id !== removed.id); const chore = state.chores.find((item) => item.id === removed.choreId); const prior = state.receipts.filter((receipt) => receipt.choreId === removed.choreId).sort((a, b) => b.completedAt.localeCompare(a.completedAt))[0]; if (chore) { chore.completedAt = prior?.completedAt; chore.updatedAt = now(); } lastReceipt = undefined; await save(); render(); }
     if (action === 'export-json') download('chore-receipt-backup.json', JSON.stringify(state, null, 2), 'application/json');

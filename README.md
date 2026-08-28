@@ -3,7 +3,8 @@
 Record shared chores when they get done.
 
 Chore Receipt is for roommates and families who share recurring work. Try the
-sample at `/demo`; it opens a separate board with four household chores.
+sample at `/demo`; it opens a separate board with four household chores. Demo
+changes are deleted when you select **Start for real**.
 
 ## What it does
 

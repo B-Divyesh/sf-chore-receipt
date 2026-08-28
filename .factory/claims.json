@@ -1,5 +1,6 @@
 [
   {"id":"demo-isolation","claim":"Try it with sample data opens a separate sampled board.","where":"landing action, demo banner, README","test":"npm test -- --grep @claim:demo-isolation","sandbox":"Fresh landing page; one click opens /demo with four sample chores and only the demo store is populated."},
+  {"id":"demo-discard","claim":"Starting for real discards all demo changes.","where":"demo banner, Privacy, demo documentation","test":"npm test -- --grep @claim:demo-discard","sandbox":"Change the demo, start for real, assert the demo IndexedDB namespace is gone, then re-enter and observe only the four original receipts."},
   {"id":"stored-device","claim":"Stored on this device.","where":"landing facts, Privacy, README","test":"npm test -- --grep @claim:stored-device","sandbox":"Landing-to-demo flow asserts that the populated sample is in the demo IndexedDB namespace, not the real one."},
   {"id":"offline-reload","claim":"Works offline after setup.","where":"landing facts, README","test":"npm test -- --grep @claim:offline-reload","sandbox":"Fresh browser context loads /demo, waits for the worker, goes offline, and reloads the document."},
   {"id":"csv-export","claim":"Export receipts as CSV.","where":"Receipt log, README","test":"npm test -- --grep @claim:csv-export","sandbox":"Demo receipt log download has the header and four receipt rows."},
