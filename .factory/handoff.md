@@ -60,11 +60,16 @@ Additional browser checks:
 
 Artifact class remains `pwa-offline`; deployment remains static from `dist/`.
 The repository has no separate deployment workflow or credential configuration.
-Push the repair commit on `main` to the configured static deployment pipeline.
+Repair commit `274988336db10b0183259d59c4b8bca917cc4ff8` was pushed to `origin/main`.
+
+Immediately after the push, the live URL still served the prior stable
+`/assets/app.js` and `chore-receipt-v1` worker, so the host had not yet consumed
+the commit. This worker cannot perform a separate static-host deployment without
+the factory deployment credential/workflow; the pushed `main` branch is the
+configured deployment handoff.
 
 ## Known gaps
 
-No live deploy was available from this disposable worker before the repair
-commit was pushed. The existing live URL therefore still represents the prior
-candidate until the static pipeline consumes the pushed commit; rerun live
-identity, HTTPS headers, true-404, and Lighthouse checks after deployment.
+The existing live URL still represents the prior candidate until the static
+pipeline consumes the pushed commit; rerun live identity, HTTPS headers,
+true-404, and Lighthouse checks after deployment.
