@@ -1,58 +1,57 @@
-# Chore Receipt — polish 3 handoff
+# Chore Receipt — polish 3 retry 1 handoff
 
 ## Released repair
 
-- Repair code: `f49bfed11fc355a4ef1f3e049cba12c8700f3edb`
-- Base reviewed: `40424eacfd3da8b330ecdd9a7b10cc5301e67fc2`
-- Review report: `8f7a084002d131e7e15f1b685ad01f1cbae91446`
-- Deployment: `6a8ee596-c0be-4576-8ef7-6ace607817f1`
+- Reviewed base: `40424eacfd3da8b330ecdd9a7b10cc5301e67fc2`
+- Review: `8f7a084002d131e7e15f1b685ad01f1cbae91446`
+- Product repair: `b15327b603605a677c0310cc0f1965464bcc0246` and
+  `4a7822ef0fb57b4279bf5894a8f764361aebcc7b`
+- Verification evidence and live-test harness:
+  `e6ac4fb0522ca8bf082fcec74f3abc079ac4ead3`
+- Final static deployment: `3318e198-e913-4bee-88c1-0737808ef736`
 - Live URL: <https://chore-receipt.sociobot.in>
 
-The release now has a complete, mechanically checked landing-copy audit and
-removes every review-3 copy defect. The hero no longer has a slogan caption;
-the sample preview is **Sample chore board**; all chore queues are **Current
-chores**; and the explanatory section is **How chore receipts set the next
-due date**. The no-sync claim regression now also proves that a new copy makes
-a source-only chore available only after a recipient imports it again.
+The landing audit is now a real rendered-product inventory. It records 50 copy
+units, including repeated text, the hero image description, and accessible
+labels. The regression waits for the IndexedDB-rendered landing shell, rejects
+untracked text, compares every committed row, checks word counts, and rejects
+sentences over 22 words. The catalog description is a verb-first, 51-character
+sentence.
 
-`.factory/polish-3.md` maps every finding from all review rounds, prior polish
-records, controller feedback, and verification reports to its repair and live
-evidence.
+All prior product repairs remain in place: direct `?demo=1` uses its separate
+database and banner, the 404 cannot poison offline navigation, real data
+persists, imports recover data, QR copies stay local and do not synchronize,
+metadata and 404 pages are real routes, mobile exposes Household, and keyboard
+route focus is announced. `.factory/polish-3.md` maps every finding to its
+repair and current evidence.
 
 ## Verification
 
-Clean clone: `/tmp/chore-receipt-polish3-clean.8qGOu0/repo` at repair commit
-`f49bfed`.
+Clean clone `/tmp/chore-receipt-polish3-retry1-release.NpQTvm/repo` at
+`e6ac4fb`:
 
-1. `npm ci` passed: 52 packages installed; 0 vulnerabilities reported.
-2. Every declared claim command was run separately and passed (11/11):
-   `demo-isolation`, `demo-discard`, `stored-device`, `offline-reload`,
-   `csv-export`, `json-backup`, `local-only`, `qr-share`, `copies-no-sync`,
-   `receipt-next-date`, and `free`.
-3. `npm test -- --workers=1` passed **27/27**. This includes all claim tests,
-   demo isolation/discard/reset, corrupt-data recovery, edit/remove, metadata,
-   focus/announcement history navigation, phone layout/200% text, true-404
-   offline recovery, privacy request bodies, cache policy, exact copy audit,
-   and Axe serious/critical checks for every product route and the 404.
-4. `npm run build` passed and produced `dist/`. Initial bundle sizes: JS
-   52.25 kB raw / 18.43 kB gzip; CSS 14.41 kB raw / 4.10 kB gzip; hero WebP
-   93.11 kB.
-5. Local `verify-url.sh` passed with no console errors; evidence is in
-   `.factory/evidence/polish-3-local/verify.json` and its screenshots. Local
-   mobile Lighthouse: Performance 99, Accessibility 100, Best Practices 100,
-   SEO 100; FCP 1,054 ms, LCP 1,956 ms, TBT 0 ms, CLS 0.014.
-6. After deployment, `verify-url.sh https://chore-receipt.sociobot.in/`
-   passed cold with no console errors. `live-audit.json` records successful
-   200 route metadata/landmark checks, direct `?demo=1` banner/sample/reset,
-   QR request privacy, true 404 then offline receipt log, and an accessible
-   true 404. It found zero serious or critical Axe issues on `/`, `/demo`,
-   `/log`, `/settings`, `/privacy`, `/terms`, and `/not-a-page`.
-7. Live cache checks confirmed `assets/index-DGB9tstE.js` has
-   `Cache-Control: public, max-age=31536000, immutable`; `sw.js` has
-   `public, max-age=0, must-revalidate`.
-8. Live mobile Lighthouse: **Performance 100, Accessibility 100, Best
-   Practices 100, SEO 100**; FCP 908 ms, LCP 1,508 ms, TBT 17 ms, CLS 0.014.
-   Evidence is `.factory/evidence/polish-3-live/lighthouse-mobile.json`.
+1. `npm ci` passed with 0 vulnerabilities.
+2. `npm test -- --grep @claim: --workers=1` passed **11/11** declared claims.
+3. `npm test -- --workers=1` passed **27/27**. It covers all claims, recovery,
+   edit/remove, route focus/history, mobile and 200% text, metadata, the
+   designed 404, cache rules, exact rendered copy audit, offline reload,
+   privacy request bodies, and Axe serious/critical checks.
+4. `npm run build` passed and produced `dist/`. The initial JS is 53.96 kB raw
+   / 18.74 kB gzip; CSS is 14.41 kB raw / 4.10 kB gzip; hero art is 93.11 kB.
+5. Local `verify-url.sh` passed with no console errors. Evidence:
+   `.factory/evidence/polish-3-retry1-local/verify.json`.
+6. After final deployment, `verify-url.sh https://chore-receipt.sociobot.in/`
+   passed cold with no console errors. The full live 27-test suite also passed
+   with `PLAYWRIGHT_BASE_URL=https://chore-receipt.sociobot.in`.
+7. Live audit evidence in
+   `.factory/evidence/polish-3-retry1-live/live-audit.json` confirms direct
+   demo/reset, QR request privacy, 404 then offline navigation, route metadata,
+   44px mobile Household navigation, and zero serious/critical Axe findings.
+8. Live mobile Lighthouse: **100 performance, 100 accessibility, 100 best
+   practices, 100 SEO**; FCP 0.9s, LCP 1.5s, TBT 0ms, CLS 0.014. Raw report:
+   `.factory/evidence/polish-3-retry1-live/lighthouse-mobile.json`.
+9. Live caching is correct: hashed JS is `max-age=31536000, immutable`; `sw.js`
+   is `max-age=0, must-revalidate`.
 
 ## Run and verify locally
 
@@ -63,9 +62,9 @@ npm run build
 npm run preview
 ```
 
-Open `/demo` or `/?demo=1` for the isolated sample. The demo banner offers
-**Reset demo** and **Start for real**; starting for real removes the demo
-database before returning to the real board.
+Open `/demo` or `/?demo=1` for the isolated sample. **Reset demo** restores
+the shipped sample. **Start for real** deletes the demo database and opens the
+real board.
 
 ## Known gaps
 

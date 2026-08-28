@@ -4,8 +4,9 @@ Reviewed base: `40424eacfd3da8b330ecdd9a7b10cc5301e67fc2`. Review:
 `8f7a084002d131e7e15f1b685ad01f1cbae91446`. This retry corrects the
 previously incomplete closure of F-1-18. Product repair commits are
 `b15327b603605a677c0310cc0f1965464bcc0246` and
-`4a7822ef0fb57b4279bf5894a8f764361aebcc7b`. Deployment:
-`1114d238-5ad9-430f-8c8f-5497f55770d3` to
+`4a7822ef0fb57b4279bf5894a8f764361aebcc7b`. Evidence and live-test harness:
+`e6ac4fb0522ca8bf082fcec74f3abc079ac4ead3`. Final deployment:
+`3318e198-e913-4bee-88c1-0737808ef736` to
 <https://chore-receipt.sociobot.in>.
 
 Every earlier review, polish, and verification record was re-read. The table
@@ -45,14 +46,15 @@ navigation, QR privacy, 404-before-offline behavior, and Axe.
 
 ## Final evidence
 
-- Clean clone at `/tmp/chore-receipt-polish3-retry1-final.oRtePF/repo` checked
-  `4a7822e`: `npm ci` passed with 0 vulnerabilities; the 11 claim tests and
-  full 27-test suite passed; `npm run build` produced `dist/`.
+- Clean clone at `/tmp/chore-receipt-polish3-retry1-release.NpQTvm/repo`
+  checked `e6ac4fb`: `npm ci` passed with 0 vulnerabilities; the 11 claim
+  tests and full 27-test suite passed; `npm run build` produced `dist/`.
 - Local `verify-url.sh` produced
   `evidence/polish-3-retry1-local/verify.json`: title, language, one h1, main,
   image alt text, labelled buttons, and no console errors.
 - The production browser suite passed all 27 tests using
-  `PLAYWRIGHT_BASE_URL=https://chore-receipt.sociobot.in`.
+  `PLAYWRIGHT_BASE_URL=https://chore-receipt.sociobot.in` after final
+  deployment `3318e198-e913-4bee-88c1-0737808ef736`.
 - Live `verify-url.sh` produced
   `evidence/polish-3-retry1-live/verify.json`; `live-audit.json` records zero
   serious or critical Axe findings on seven routes and the direct demo, privacy,
