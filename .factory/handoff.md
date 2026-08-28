@@ -1,71 +1,52 @@
-# Chore Receipt — polish 3 retry 1 handoff
+# Chore Receipt — adversarial review 4 handoff
 
-## Released repair
+## Work completed
 
-- Reviewed base: `40424eacfd3da8b330ecdd9a7b10cc5301e67fc2`
-- Review: `8f7a084002d131e7e15f1b685ad01f1cbae91446`
-- Product repair: `b15327b603605a677c0310cc0f1965464bcc0246` and
-  `4a7822ef0fb57b4279bf5894a8f764361aebcc7b`
-- Verification evidence and live-test harness:
-  `e6ac4fb0522ca8bf082fcec74f3abc079ac4ead3`
-- Final static deployment: `3318e198-e913-4bee-88c1-0737808ef736`
-- Live URL: <https://chore-receipt.sociobot.in>
+- Reviewed the deployed product cold at 390×844 and 1440×900.
+- Read the brief, design, claims, demo documentation, README, all prior
+  reviews, all polish records, and the prior handoff.
+- Rechecked every earlier finding on the live site and in source/tests.
+- Audited landing and README copy, the one-click demo, storage isolation,
+  Reset, Start for real, request privacy, offline behavior, routes, metadata,
+  links, focus/history, accessibility, 404 design, visual identity, and missed
+  leverage.
+- Wrote `.factory/review-4.md`. No product code was changed.
 
-The landing audit is now a real rendered-product inventory. It records 50 copy
-units, including repeated text, the hero image description, and accessible
-labels. The regression waits for the IndexedDB-rendered landing shell, rejects
-untracked text, compares every committed row, checks word counts, and rejects
-sentences over 22 words. The catalog description is a verb-first, 51-character
-sentence.
+## Verdict
 
-All prior product repairs remain in place: direct `?demo=1` uses its separate
-database and banner, the 404 cannot poison offline navigation, real data
-persists, imports recover data, QR copies stay local and do not synchronize,
-metadata and 404 pages are real routes, mobile exposes Household, and keyboard
-route focus is announced. `.factory/polish-3.md` maps every finding to its
-repair and current evidence.
+**FAIL.** The review records nine findings. Blocking findings are the stale
+completion result left by **Reset demo** and repeated claim-coverage
+overstatement F-1-15. Re-import also fails to carry removed chores to another
+device despite the update instruction.
 
 ## Verification
 
-Clean clone `/tmp/chore-receipt-polish3-retry1-release.NpQTvm/repo` at
-`e6ac4fb`:
+Clean clone: `/tmp/chore-receipt-review4.6b62HE/repo` at
+`28290e0aa2797abdd03810e35e2e9159112dc074`.
 
 1. `npm ci` passed with 0 vulnerabilities.
-2. `npm test -- --grep @claim: --workers=1` passed **11/11** declared claims.
-3. `npm test -- --workers=1` passed **27/27**. It covers all claims, recovery,
-   edit/remove, route focus/history, mobile and 200% text, metadata, the
-   designed 404, cache rules, exact rendered copy audit, offline reload,
-   privacy request bodies, and Axe serious/critical checks.
-4. `npm run build` passed and produced `dist/`. The initial JS is 53.96 kB raw
-   / 18.74 kB gzip; CSS is 14.41 kB raw / 4.10 kB gzip; hero art is 93.11 kB.
-5. Local `verify-url.sh` passed with no console errors. Evidence:
-   `.factory/evidence/polish-3-retry1-local/verify.json`.
-6. After final deployment, `verify-url.sh https://chore-receipt.sociobot.in/`
-   passed cold with no console errors. The full live 27-test suite also passed
-   with `PLAYWRIGHT_BASE_URL=https://chore-receipt.sociobot.in`.
-7. Live audit evidence in
-   `.factory/evidence/polish-3-retry1-live/live-audit.json` confirms direct
-   demo/reset, QR request privacy, 404 then offline navigation, route metadata,
-   44px mobile Household navigation, and zero serious/critical Axe findings.
-8. Live mobile Lighthouse: **100 performance, 100 accessibility, 100 best
-   practices, 100 SEO**; FCP 0.9s, LCP 1.5s, TBT 0ms, CLS 0.014. Raw report:
-   `.factory/evidence/polish-3-retry1-live/lighthouse-mobile.json`.
-9. Live caching is correct: hashed JS is `max-age=31536000, immutable`; `sw.js`
-   is `max-age=0, must-revalidate`.
+2. Every exact command in `.factory/claims.json` passed individually: 11/11.
+3. `npm test -- --workers=1` passed 27/27 in the clean clone.
+4. `npm run build` passed and produced `dist/`; initial JS is 53.96 kB raw /
+   18.74 kB gzip.
+5. After producing the local `dist/` artifact needed by one repository-only
+   cache assertion,
+   `PLAYWRIGHT_BASE_URL=https://chore-receipt.sociobot.in npm test -- --workers=1`
+   passed 27/27.
+6. `/opt/fleet/lib/verify-url.sh https://chore-receipt.sociobot.in/ <temp-dir>`
+   passed with no console errors and confirmed language, title, h1, main, alt
+   text, and labelled buttons.
+7. Manual live checks confirmed demo/real IndexedDB separation, Start for real
+   deletion, same-origin GET-only request traffic, true-404 then offline
+   recovery, six route metadata sets, designed HTTP 404, link status, and
+   click/Back/Forward focus announcements.
+8. Manual live checks reproduced the two behavior gaps: Reset restored four
+   stored receipts but retained the false receipt notice and Undo control; a
+   re-import after source removal left the removed chore on the recipient.
 
-## Run and verify locally
+## Handoff notes
 
-```sh
-npm ci
-npm test -- --workers=1
-npm run build
-npm run preview
-```
-
-Open `/demo` or `/?demo=1` for the isolated sample. **Reset demo** restores
-the shipped sample. **Start for real** deletes the demo database and opens the
-real board.
-
-## Known gaps
-
-None.
+See `.factory/review-4.md` for exact quotes, evidence, copy counts, every prior
+finding, and concrete fixes. The highest-priority repair is to clear transient
+state during Reset and add a declared Reset claim test. Then define replacement
+versus merge semantics for QR/JSON imports and make the copy and tests match.
