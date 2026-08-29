@@ -74,7 +74,7 @@
     "claim": "Household copies do not stay in sync; another scan or import applies later chore changes.",
     "where": "landing privacy section, Household, Privacy",
     "test": "npm test -- --grep @claim:copies-no-sync",
-    "sandbox": "A recipient stays unchanged until re-import; the next QR carries a source edit and removal while retaining receipt history and a destination-only chore."
+    "sandbox": "A recipient stays unchanged until re-import; the next QR carries a source edit and removal while retaining receipt history and a destination-only chore. Assert the visible result separately and exactly one role=status announcement."
   },
   {
     "id": "receipt-next-date",

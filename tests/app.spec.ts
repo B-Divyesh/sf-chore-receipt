@@ -265,12 +265,13 @@ test('@claim:qr-share The sample QR imports all four chores and receipts', async
 });
 
 test('@claim:copies-no-sync Re-import applies edits and removals but keeps destination-only data', async ({ browser }) => {
+  const copyUpdated = 'Household copy updated. Chore changes and receipt history were imported.';
   const source = await browser.newContext(); const sourcePage = await freshPage(source, '/demo');
   await sourcePage.getByRole('link', { name: 'Household' }).click();
   await sourcePage.getByRole('button', { name: 'Create household QR' }).click();
   const href = await sourcePage.getByRole('link', { name: 'Open share link' }).getAttribute('href');
   const recipient = await browser.newContext(); const recipientPage = await freshPage(recipient, href!);
-  await expect(recipientPage.getByText('Household copy updated. Chore changes and receipt history were imported.')).toBeVisible();
+  await expect(recipientPage.locator('.notice')).toHaveText(copyUpdated);
 
   await recipientPage.getByRole('button', { name: 'Add a chore' }).click();
   await recipientPage.getByRole('dialog', { name: 'Add a shared chore' }).getByLabel('Chore name').fill('Polish the hallway mirror');
@@ -295,7 +296,10 @@ test('@claim:copies-no-sync Re-import applies edits and removals but keeps desti
   await sourcePage.getByRole('button', { name: 'Create household QR' }).click();
   const updatedHref = await sourcePage.getByRole('link', { name: 'Open share link' }).getAttribute('href');
   await recipientPage.goto(updatedHref!);
-  await expect(recipientPage.getByText('Household copy updated. Chore changes and receipt history were imported.')).toBeVisible();
+  await expect(recipientPage.locator('.notice')).toHaveText(copyUpdated);
+  const statusRegions = recipientPage.locator('[role="status"]');
+  await expect(statusRegions).toHaveCount(1);
+  await expect(statusRegions).toHaveText(copyUpdated);
   await expect(recipientPage.getByRole('heading', { name: 'Take recycling out' })).toBeVisible();
   await expect(recipientPage.getByRole('heading', { name: 'Take out the bins' })).toHaveCount(0);
   await expect(recipientPage.getByRole('heading', { name: 'Water the plants' })).toHaveCount(0);
@@ -538,7 +542,7 @@ test('README and catalog use plain, bounded product wording', () => {
   expect(readme).not.toContain('browser database');
   expect(readme).not.toContain('Each public claim');
   const catalog = readFileSync('.factory/catalog-description.txt', 'utf8').trim();
-  expect(catalog).toBe('Record shared chores and see what is due next.');
+  expect(catalog).toBe('Record shared chores when they get done and see what is due next.');
   expect(catalog.length).toBeLessThanOrEqual(120);
 });
 
