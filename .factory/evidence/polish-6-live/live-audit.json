@@ -1,0 +1,131 @@
+{
+  "checkedAt": "2026-08-29T00:12:24.641Z",
+  "base": "https://chore-receipt.sociobot.in",
+  "routes": [
+    {
+      "path": "/",
+      "status": 200,
+      "title": "Chore Receipt — record shared chores",
+      "expectedTitle": "Chore Receipt — record shared chores",
+      "h1": 1,
+      "main": 1,
+      "lang": "en",
+      "canonical": "https://chore-receipt.sociobot.in/",
+      "seriousOrCriticalAxe": []
+    },
+    {
+      "path": "/demo",
+      "status": 200,
+      "title": "Demo — Chore Receipt",
+      "expectedTitle": "Demo — Chore Receipt",
+      "h1": 1,
+      "main": 1,
+      "lang": "en",
+      "canonical": "https://chore-receipt.sociobot.in/demo",
+      "seriousOrCriticalAxe": []
+    },
+    {
+      "path": "/log",
+      "status": 200,
+      "title": "Receipt log — Chore Receipt",
+      "expectedTitle": "Receipt log — Chore Receipt",
+      "h1": 1,
+      "main": 1,
+      "lang": "en",
+      "canonical": "https://chore-receipt.sociobot.in/log",
+      "seriousOrCriticalAxe": []
+    },
+    {
+      "path": "/settings",
+      "status": 200,
+      "title": "Household — Chore Receipt",
+      "expectedTitle": "Household — Chore Receipt",
+      "h1": 1,
+      "main": 1,
+      "lang": "en",
+      "canonical": "https://chore-receipt.sociobot.in/settings",
+      "seriousOrCriticalAxe": []
+    },
+    {
+      "path": "/privacy",
+      "status": 200,
+      "title": "Privacy — Chore Receipt",
+      "expectedTitle": "Privacy — Chore Receipt",
+      "h1": 1,
+      "main": 1,
+      "lang": "en",
+      "canonical": "https://chore-receipt.sociobot.in/privacy",
+      "seriousOrCriticalAxe": []
+    },
+    {
+      "path": "/terms",
+      "status": 200,
+      "title": "Terms — Chore Receipt",
+      "expectedTitle": "Terms — Chore Receipt",
+      "h1": 1,
+      "main": 1,
+      "lang": "en",
+      "canonical": "https://chore-receipt.sociobot.in/terms",
+      "seriousOrCriticalAxe": []
+    },
+    {
+      "path": "/missing-polish-6",
+      "status": 404,
+      "title": "Page not found — Chore Receipt",
+      "h1": 1,
+      "main": 1,
+      "lang": "en",
+      "canonical": "https://chore-receipt.sociobot.in/404",
+      "frameAncestors": true,
+      "seriousOrCriticalAxe": []
+    }
+  ],
+  "firstScreen": {
+    "title": "Chore Receipt — record shared chores",
+    "heading": "Record chores when they get done",
+    "demoAction": "Try it with sample data",
+    "householdVisible": true,
+    "facts": "Works offline after setup\nStored on this device\nFree to use",
+    "horizontalOverflow": false
+  },
+  "demo": {
+    "url": "https://chore-receipt.sociobot.in/?demo=1",
+    "banner": "Demo — sample data, nothing is saved. Reset demo Start for real",
+    "choresAfterReset": 4,
+    "receiptsAfterReset": 4,
+    "resetAnnouncement": "Demo reset to four sample chores and four receipts.",
+    "resetFocused": true,
+    "undoAfterReset": 0,
+    "realDatabaseCreated": false
+  },
+  "privacy": {
+    "requestCount": 7,
+    "onlySameOriginGetsWithoutBodies": true
+  },
+  "sharedCopy": {
+    "visibleNotice": "Household copy updated. Chore changes and receipt history were imported.",
+    "statusRegionCount": 1,
+    "statusAnnouncement": "Household copy updated. Chore changes and receipt history were imported."
+  },
+  "navigation": {
+    "afterClick": {
+      "url": "https://chore-receipt.sociobot.in/log?demo=1",
+      "focus": "Every chore receipt",
+      "announcement": "Every chore receipt page"
+    },
+    "afterBack": {
+      "url": "https://chore-receipt.sociobot.in/demo",
+      "focus": "Shared chore board",
+      "announcement": "Shared chore board page"
+    },
+    "afterForward": {
+      "url": "https://chore-receipt.sociobot.in/log?demo=1",
+      "focus": "Every chore receipt",
+      "announcement": "Every chore receipt page"
+    }
+  },
+  "errors": [],
+  "expectedMissingRouteConsole": [
+    "The deliberate /missing-polish-6 document request returned HTTP 404."
+  ]
+}
